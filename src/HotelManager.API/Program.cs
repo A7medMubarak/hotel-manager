@@ -51,6 +51,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.MapGet("/", () => Results.Redirect("http://localhost:5174"));
 }
 
 app.Use(async (context, next) =>
