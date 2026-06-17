@@ -126,7 +126,7 @@ public class RoomServiceTests
         };
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 6, 15), CheckOut = new DateOnly(2026, 6, 18), Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 6, 15), CheckOut = new DateOnly(2026, 6, 20), Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(rooms: rooms, bookings: bookings);
         var service = new RoomService(ctx);
