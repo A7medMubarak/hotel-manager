@@ -1,0 +1,70 @@
+using HotelManager.Application.DTOs.Users;
+using HotelManager.Application.Services.Interfaces;
+using HotelManager.Domain.Entities;
+using HotelManager.Domain.Enums;
+using HotelManager.Domain.Interfaces;
+
+namespace HotelManager.Application.Services;
+
+public class UserService : IUserService
+{
+    private readonly IApplicationDbContext _context;
+
+    public UserService(IApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<List<UserDto>> GetAllAsync()
+    {
+        var users = await _context.Users
+            .OrderBy(u => u.Username)
+            .ToListAsync();
+
+        return users.Select(MapToDto).ToList();
+    }
+
+    public async Task<UserDto> CreateEmployeeAsync(CreateEmployeeRequest request, int createdByUserId)
+    {
+        var duplicate = await _context.Users
+            .AnyAsync(u => u.Username == request.Username);
+
+        if (duplicate)
+            throw new ArgumentException($"Username '{request.Username}' is already taken.");
+
+        var user = new User
+        {
+            Username = request.Username,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            Role = UserRole.Employee,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        return MapToDto(user);
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        if (id == 1)
+            throw new ArgumentException("Cannot delete the primary owner account.");
+
+        var user = await _context.Users.FindAsync(id);
+
+        if (user is null)
+            throw new KeyNotFoundException($"User with id {id} not found.");
+
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+    }
+
+    private static UserDto MapToDto(User user) => new()
+    {
+        Id = user.Id,
+        Username = user.Username,
+        Role = user.Role.ToString(),
+        CreatedAt = user.CreatedAt
+    };
+}
