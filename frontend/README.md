@@ -1,16 +1,63 @@
-# React + Vite
+# Hotel Manager — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React SPA for the Hotel Manager system. Built with React 19, Vite 8, Tailwind CSS 4, and React Router 7.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Mobile-first front-desk interface for hotel staff. Features include:
 
-## React Compiler
+- **Login & Role-based UI** — JWT authentication with Owner/Employee role gating
+- **Bookings** — View, search, create, extend, complete, and cancel reservations
+- **Guests** — Register, search, and manage guest profiles
+- **Rooms** — Browse room inventory with real-time status (Available / Occupied / Maintenance)
+- **Reports** — Daily, weekly, monthly, and outstanding balance reports (Owner only)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- **React 19** with hooks and context-based state management
+- **Vite 8** for development server and optimized builds
+- **Tailwind CSS 4** for utility-first responsive styling
+- **React Router 7** for declarative routing with nested layouts
+- **Axios** for HTTP client with automatic JWT interceptor
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+The dev server runs at `http://localhost:5174` and proxies API requests to the backend.
+
+## Build
+
+```bash
+npm run build    # outputs to dist/
+npm run preview  # preview the production build
+```
+
+## Project Structure
+
+```
+src/
+├── api/
+│   └── client.js          ← Axios instance with JWT interceptor
+├── components/
+│   ├── Layout.jsx         ← App shell with navigation bar
+│   └── ProtectedRoute.jsx ← Auth guard component
+├── context/
+│   └── AuthContext.jsx    ← Authentication state & login/logout
+├── pages/
+│   ├── Login.jsx          ← Login form
+│   ├── Bookings.jsx       ← Booking list with filters
+│   ├── BookingDetail.jsx  ← Single booking view with payments
+│   ├── NewBooking.jsx     ← Create booking form
+│   ├── Guests.jsx         ← Guest list with search
+│   ├── GuestDetail.jsx    ← Single guest view
+│   ├── NewGuest.jsx       ← Register guest form
+│   ├── Rooms.jsx          ← Room inventory & status
+│   └── Reports.jsx        ← Operational reports (Owner only)
+├── App.jsx                ← Route definitions
+├── main.jsx               ← Entry point
+└── index.css              ← Tailwind imports & global styles
+```
