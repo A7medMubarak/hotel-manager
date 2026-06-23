@@ -17,6 +17,9 @@ dist-ssr/
 .env.local
 .env.*.local
 
+# App Settings (local secrets)
+appsettings.Development.json
+
 # IDE
 .vscode/
 !.vscode/extensions.json

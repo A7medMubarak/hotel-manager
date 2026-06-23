@@ -120,13 +120,14 @@ public class RoomServiceTests
     [Fact]
     public async Task ToggleMaintenanceAsync_ActiveBooking_Throws()
     {
+        var today = DateOnly.FromDateTime(DateTime.Today);
         var rooms = new List<Room>
         {
             new() { Id = 1, Number = "101", Floor = 1, BedCount = 2, BathroomType = BathroomType.Ensuite, BasePricePerNight = 250 }
         };
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 6, 15), CheckOut = new DateOnly(2026, 6, 20), Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = today.AddDays(-3), CheckOut = today.AddDays(3), Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(rooms: rooms, bookings: bookings);
         var service = new RoomService(ctx);

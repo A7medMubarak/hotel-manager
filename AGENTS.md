@@ -372,15 +372,22 @@ Subsequent Requests
 
 ## Configuration
 
-### appsettings.json
+### Configuration Layering
+
+```
+appsettings.json                  ← Shared base config (no secrets)
+appsettings.Development.json      ← Local dev overrides (gitignored)
+Environment variables             ← Production secrets (ConnectionStrings__DefaultConnection, Jwt__Key)
+dotnet user-secrets               ← Dev alternative (recommended)
+```
+
+`appsettings.json` contains only non-sensitive defaults. Secrets are never checked into source control.
+
+### appsettings.json (shared — committed to git)
 
 ```json
 {
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=.\\SQLEXPRESS;Database=HotelManager;Trusted_Connection=True;TrustServerCertificate=True"
-  },
   "Jwt": {
-    "Key": "Min-32-character-secret-key!",
     "Issuer": "HotelManager.API",
     "Audience": "HotelManager.Client",
     "ExpiryHours": "8"
@@ -390,7 +397,44 @@ Subsequent Requests
 }
 ```
 
-> **Security note**: The JWT signing key in `appsettings.json` is a development placeholder. In production, use a secure key store (Azure Key Vault, environment variables, or User Secrets).
+### appsettings.Development.json (local — gitignored)
+
+Location: `src/HotelManager.API/appsettings.Development.json`
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=.\\SQLEXPRESS;Database=HotelManager;Trusted_Connection=True;TrustServerCertificate=True"
+  },
+  "Jwt": {
+    "Key": "Your-32-char-dev-secret-key-here!!"
+  }
+}
+```
+
+### Production: Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `ConnectionStrings__DefaultConnection` | ✅ Yes | SQL Server connection string |
+| `Jwt__Key` | ✅ Yes | HMAC-SHA256 signing key (min 32 chars) |
+| `Jwt__Issuer` | ❌ No (optional override) | Override `appsettings.json` |
+| `Jwt__Audience` | ❌ No (optional override) | Override `appsettings.json` |
+| `Jwt__ExpiryHours` | ❌ No (optional override) | Override `appsettings.json` |
+| `FrontendUrl` | ❌ No (optional override) | Override `appsettings.json` |
+| `DefaultAdminPassword` | ❌ No (default: `Admin123!`) | First-run admin seed password |
+
+> **Important**: ASP.NET Core uses `__` (double underscore) as the key separator in environment variables (e.g., `ConnectionStrings__DefaultConnection`). This works on all platforms.
+
+### Development Alternative: User Secrets
+
+```bash
+dotnet user-secrets init --project src/HotelManager.API
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=.\\SQLEXPRESS;Database=HotelManager;Trusted_Connection=True;TrustServerCertificate=True"
+dotnet user-secrets set "Jwt:Key" "Your-32-char-dev-secret-key-here!!"
+```
+
+User Secrets store values in a JSON file under your user profile (`%APPDATA%\Microsoft\UserSecrets\`) — never committed, scoped per developer.
 
 ---
 
