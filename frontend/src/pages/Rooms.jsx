@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
 
@@ -52,7 +52,14 @@ export default function Rooms() {
 
   return (
     <div className="px-4 py-4">
-      <h1 className="text-xl font-bold text-gray-800 mb-4">Rooms</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-bold text-gray-800">Rooms</h1>
+        {isOwner && (
+          <Link to="/rooms/new" className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg font-medium hover:bg-blue-700">
+            + New
+          </Link>
+        )}
+      </div>
 
       <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
         {['', 'Available', 'Occupied', 'Maintenance'].map((s) => (
