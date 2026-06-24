@@ -8,7 +8,6 @@ export default function NewBooking() {
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [step, setStep] = useState(1);
 
   const [roomId, setRoomId] = useState('');
   const [checkIn, setCheckIn] = useState('');
@@ -17,6 +16,10 @@ export default function NewBooking() {
   const [primaryGuestId, setPrimaryGuestId] = useState('');
   const [notes, setNotes] = useState('');
   const [guestSearch, setGuestSearch] = useState('');
+
+  const [showNewGuest, setShowNewGuest] = useState(false);
+  const [newGuestForm, setNewGuestForm] = useState({ fullName: '', nationalId: '', address: '', phone: '' });
+  const [newGuestError, setNewGuestError] = useState('');
 
   useEffect(() => {
     const init = async () => {
@@ -40,6 +43,20 @@ export default function NewBooking() {
     if (!guestSearch || guestSearch.length < 2) return;
     const { data } = await client.get('/guests/search', { params: { q: guestSearch } });
     setGuests(data);
+  };
+
+  const handleCreateGuest = async (e) => {
+    e.preventDefault();
+    setNewGuestError('');
+    try {
+      const { data } = await client.post('/guests', newGuestForm);
+      setGuests((prev) => [...prev, data]);
+      setPrimaryGuestId(String(data.id));
+      setShowNewGuest(false);
+      setNewGuestForm({ fullName: '', nationalId: '', address: '', phone: '' });
+    } catch (err) {
+      setNewGuestError(err.response?.data?.detail || 'Failed to create guest.');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -115,6 +132,7 @@ export default function NewBooking() {
               className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
             />
             <button type="button" onClick={handleSearchGuest} className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-200">Search</button>
+            <button type="button" onClick={() => setShowNewGuest(true)} className="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-blue-700">+ New</button>
           </div>
           <select value={primaryGuestId} onChange={(e) => setPrimaryGuestId(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required>
             <option value="">Select guest...</option>
@@ -133,6 +151,27 @@ export default function NewBooking() {
           Create Booking
         </button>
       </form>
+
+      {showNewGuest && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40">
+          <div className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-gray-800">New Guest</h2>
+              <button onClick={() => setShowNewGuest(false)} className="text-gray-400 text-xl leading-none">&times;</button>
+            </div>
+
+            {newGuestError && <p className="text-sm text-red-600 bg-red-50 rounded-lg p-3 mb-4">{newGuestError}</p>}
+
+            <form onSubmit={handleCreateGuest} className="space-y-3">
+              <input name="fullName" value={newGuestForm.fullName} onChange={(e) => setNewGuestForm({ ...newGuestForm, fullName: e.target.value })} placeholder="Full Name" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required />
+              <input name="nationalId" value={newGuestForm.nationalId} onChange={(e) => setNewGuestForm({ ...newGuestForm, nationalId: e.target.value })} placeholder="National ID" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required />
+              <input name="address" value={newGuestForm.address} onChange={(e) => setNewGuestForm({ ...newGuestForm, address: e.target.value })} placeholder="Address" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required />
+              <input name="phone" value={newGuestForm.phone} onChange={(e) => setNewGuestForm({ ...newGuestForm, phone: e.target.value })} placeholder="Phone (optional)" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+              <button type="submit" className="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700">Add Guest</button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
