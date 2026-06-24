@@ -14,12 +14,8 @@ public static class DbInitializer
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<ApplicationDbContext>>();
 
-        var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
-        if (pendingMigrations.Any())
-        {
-            logger.LogInformation("Applying pending migrations...");
-            await context.Database.MigrateAsync();
-        }
+        logger.LogInformation("Ensuring database is created...");
+        await context.Database.EnsureCreatedAsync();
 
         if (!context.Users.Any())
         {

@@ -16,7 +16,13 @@ public static class ServicesExtensions
         this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        {
+            var provider = configuration.GetValue<string>("DatabaseProvider");
+            if (provider == "PostgreSql")
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+            else
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+        });
 
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
