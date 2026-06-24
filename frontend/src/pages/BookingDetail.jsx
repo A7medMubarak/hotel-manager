@@ -81,9 +81,9 @@ export default function BookingDetail() {
           <div><span className="text-gray-500">Check In</span><p className="font-medium">{booking.checkIn}</p></div>
           <div><span className="text-gray-500">Check Out</span><p className="font-medium">{booking.checkOut}</p></div>
           <div><span className="text-gray-500">Nights</span><p className="font-medium">{booking.nights}</p></div>
-          <div><span className="text-gray-500">Price/Night</span><p className="font-medium">${booking.pricePerNight}</p></div>
-          <div><span className="text-gray-500">Total Cost</span><p className="font-medium">${booking.totalCost}</p></div>
-          <div><span className="text-gray-500">Balance</span><p className={`font-medium ${booking.balance > 0 ? 'text-red-600' : 'text-green-600'}`}>${booking.balance}</p></div>
+          <div><span className="text-gray-500">Price/Night</span><p className="font-medium">EGP {booking.pricePerNight}</p></div>
+          <div><span className="text-gray-500">Total Cost</span><p className="font-medium">EGP {booking.totalCost}</p></div>
+          <div><span className="text-gray-500">Balance</span><p className={`font-medium ${booking.balance > 0 ? 'text-red-600' : 'text-green-600'}`}>EGP {booking.balance}</p></div>
         </div>
 
         {booking.notes && <p className="text-sm text-gray-500 mb-2">Note: {booking.notes}</p>}
@@ -120,7 +120,7 @@ export default function BookingDetail() {
             {booking.payments?.map((p) => (
               <div key={p.id} className="flex justify-between items-center text-sm py-2 border-b border-gray-100">
                 <div>
-                  <p className="font-medium text-gray-800">${p.amount}</p>
+                  <p className="font-medium text-gray-800">EGP {p.amount}</p>
                   {p.notes && <p className="text-xs text-gray-400">{p.notes}</p>}
                 </div>
                 <span className="text-xs text-gray-400">{new Date(p.createdAt).toLocaleDateString()}</span>

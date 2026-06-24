@@ -57,11 +57,11 @@ export default function Reports() {
             <div className="bg-green-50 rounded-lg p-3"><p className="text-2xl font-bold text-green-700">{daily.activeBookings}</p><p className="text-xs text-green-600">Active Bookings</p></div>
             <div className="bg-blue-50 rounded-lg p-3"><p className="text-2xl font-bold text-blue-700">{daily.newCheckIns}</p><p className="text-xs text-blue-600">Check Ins</p></div>
             <div className="bg-orange-50 rounded-lg p-3"><p className="text-2xl font-bold text-orange-700">{daily.newCheckOuts}</p><p className="text-xs text-orange-600">Check Outs</p></div>
-            <div className="bg-purple-50 rounded-lg p-3"><p className="text-2xl font-bold text-purple-700">${daily.totalCollected.toFixed(2)}</p><p className="text-xs text-purple-600">Collected</p></div>
+            <div className="bg-purple-50 rounded-lg p-3"><p className="text-2xl font-bold text-purple-700">EGP {daily.totalCollected.toFixed(2)}</p><p className="text-xs text-purple-600">Collected</p></div>
           </div>
           <div className="border-t border-gray-100 pt-3 space-y-1 text-sm">
-            <p className="flex justify-between"><span className="text-gray-500">Theoretical Revenue</span><span className="font-medium">${daily.theoreticalRevenue.toFixed(2)}</span></p>
-            <p className="flex justify-between"><span className="text-gray-500">Outstanding Balance</span><span className="font-medium text-red-600">${daily.outstandingBalance.toFixed(2)}</span></p>
+            <p className="flex justify-between"><span className="text-gray-500">Theoretical Revenue</span><span className="font-medium">EGP {daily.theoreticalRevenue.toFixed(2)}</span></p>
+            <p className="flex justify-between"><span className="text-gray-500">Outstanding Balance</span><span className="font-medium text-red-600">EGP {daily.outstandingBalance.toFixed(2)}</span></p>
           </div>
         </div>
       )}
@@ -70,8 +70,8 @@ export default function Reports() {
         <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-3">
           <p className="text-sm text-gray-500">{weekly.startDate} → {weekly.endDate}</p>
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-blue-50 rounded-lg p-3"><p className="text-2xl font-bold text-blue-700">${weekly.totalCollected.toFixed(2)}</p><p className="text-xs text-blue-600">Collected</p></div>
-            <div className="bg-green-50 rounded-lg p-3"><p className="text-2xl font-bold text-green-700">${weekly.totalRevenue.toFixed(2)}</p><p className="text-xs text-green-600">Revenue</p></div>
+            <div className="bg-blue-50 rounded-lg p-3"><p className="text-2xl font-bold text-blue-700">EGP {weekly.totalCollected.toFixed(2)}</p><p className="text-xs text-blue-600">Collected</p></div>
+            <div className="bg-green-50 rounded-lg p-3"><p className="text-2xl font-bold text-green-700">EGP {weekly.totalRevenue.toFixed(2)}</p><p className="text-xs text-green-600">Revenue</p></div>
             <div className="bg-purple-50 rounded-lg p-3"><p className="text-2xl font-bold text-purple-700">{weekly.totalBookings}</p><p className="text-xs text-purple-600">Total</p></div>
             <div className="bg-orange-50 rounded-lg p-3"><p className="text-2xl font-bold text-orange-700">{weekly.completedBookings}</p><p className="text-xs text-orange-600">Completed</p></div>
           </div>
@@ -82,8 +82,8 @@ export default function Reports() {
         <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-3">
           <p className="text-sm text-gray-500">{monthly.startDate} → {monthly.endDate}</p>
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-blue-50 rounded-lg p-3"><p className="text-2xl font-bold text-blue-700">${monthly.totalCollected.toFixed(2)}</p><p className="text-xs text-blue-600">Collected</p></div>
-            <div className="bg-green-50 rounded-lg p-3"><p className="text-2xl font-bold text-green-700">${monthly.totalRevenue.toFixed(2)}</p><p className="text-xs text-green-600">Revenue</p></div>
+            <div className="bg-blue-50 rounded-lg p-3"><p className="text-2xl font-bold text-blue-700">EGP {monthly.totalCollected.toFixed(2)}</p><p className="text-xs text-blue-600">Collected</p></div>
+            <div className="bg-green-50 rounded-lg p-3"><p className="text-2xl font-bold text-green-700">EGP {monthly.totalRevenue.toFixed(2)}</p><p className="text-xs text-green-600">Revenue</p></div>
             <div className="bg-purple-50 rounded-lg p-3"><p className="text-2xl font-bold text-purple-700">{monthly.totalBookings}</p><p className="text-xs text-purple-600">Total</p></div>
             <div className="bg-orange-50 rounded-lg p-3"><p className="text-2xl font-bold text-orange-700">{monthly.completedBookings}</p><p className="text-xs text-orange-600">Completed</p></div>
           </div>
@@ -101,11 +101,11 @@ export default function Reports() {
                   <p className="font-semibold text-gray-800">Room {o.roomNumber}</p>
                   <p className="text-sm text-gray-500">{o.guestName}</p>
                 </div>
-                <span className="text-sm font-bold text-red-600">${o.balance.toFixed(2)}</span>
+                <span className="text-sm font-bold text-red-600">EGP {o.balance.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-xs text-gray-400">
                 <span>{o.checkIn} → {o.checkOut}</span>
-                <span>Paid: ${o.totalPaid.toFixed(2)} / ${o.totalCost.toFixed(2)}</span>
+                <span>Paid: EGP {o.totalPaid.toFixed(2)} / EGP {o.totalCost.toFixed(2)}</span>
               </div>
             </div>
           ))}

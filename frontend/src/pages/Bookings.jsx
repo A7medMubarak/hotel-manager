@@ -120,7 +120,7 @@ export default function Bookings() {
                 </div>
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>{b.checkIn} → {b.checkOut}</span>
-                  <span className="font-medium text-gray-700">{b.balance > 0 ? `$${b.balance}` : 'Paid'}</span>
+                  <span className="font-medium text-gray-700">{b.balance > 0 ? `EGP ${b.balance}` : 'Paid'}</span>
                 </div>
               </Link>
             ))}

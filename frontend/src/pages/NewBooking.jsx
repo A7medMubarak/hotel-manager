@@ -83,7 +83,7 @@ export default function NewBooking() {
           }} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required>
             <option value="">Select room...</option>
             {filteredRooms.map((r) => (
-              <option key={r.id} value={r.id}>Room {r.number} (${r.basePricePerNight}/night)</option>
+              <option key={r.id} value={r.id}>Room {r.number} (EGP {r.basePricePerNight}/night)</option>
             ))}
           </select>
           {filteredRooms.length === 0 && <p className="text-xs text-red-500 mt-1">No available rooms.</p>}
@@ -101,7 +101,7 @@ export default function NewBooking() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Price per Night ($)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Price per Night (EGP)</label>
           <input type="number" step="0.01" min="0.01" value={pricePerNight} onChange={(e) => setPricePerNight(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required />
         </div>
 

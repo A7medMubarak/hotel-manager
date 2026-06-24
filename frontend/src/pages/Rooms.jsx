@@ -83,7 +83,7 @@ export default function Rooms() {
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor(r.status)}`}>{r.status}</span>
               </div>
               <p className="text-xs text-gray-500">Floor {r.floor} | {r.bedCount} bed{r.bedCount > 1 ? 's' : ''} | {r.bathroomType}</p>
-              <p className="text-sm font-medium text-gray-700 mt-1">${r.basePricePerNight}/night</p>
+              <p className="text-sm font-medium text-gray-700 mt-1">EGP {r.basePricePerNight}/night</p>
               {isOwner && r.status !== 'Occupied' && (
                 <button onClick={() => toggleMaintenance(r.id)} className="mt-2 text-xs text-red-500 hover:text-red-700">
                   {r.isUnderMaintenance ? 'Set Available' : 'Set Maintenance'}
