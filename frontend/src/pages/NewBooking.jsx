@@ -21,6 +21,10 @@ export default function NewBooking() {
   const [newGuestForm, setNewGuestForm] = useState({ fullName: '', nationalId: '', address: '', phone: '' });
   const [newGuestError, setNewGuestError] = useState('');
 
+  const [additionalSearch, setAdditionalSearch] = useState('');
+  const [additionalResults, setAdditionalResults] = useState([]);
+  const [additionalGuests, setAdditionalGuests] = useState([]);
+
   useEffect(() => {
     const init = async () => {
       try {
@@ -43,6 +47,23 @@ export default function NewBooking() {
     if (!guestSearch || guestSearch.length < 2) return;
     const { data } = await client.get('/guests/search', { params: { q: guestSearch } });
     setGuests(data);
+  };
+
+  const handleAdditionalSearch = async () => {
+    if (!additionalSearch || additionalSearch.length < 2) return;
+    const { data } = await client.get('/guests/search', { params: { q: additionalSearch } });
+    const selectedIds = [parseInt(primaryGuestId), ...additionalGuests.map((g) => g.id)];
+    setAdditionalResults(data.filter((g) => !selectedIds.includes(g.id)));
+  };
+
+  const addAdditionalGuest = (guest) => {
+    setAdditionalGuests([...additionalGuests, guest]);
+    setAdditionalResults([]);
+    setAdditionalSearch('');
+  };
+
+  const removeAdditionalGuest = (id) => {
+    setAdditionalGuests(additionalGuests.filter((g) => g.id !== id));
   };
 
   const handleCreateGuest = async (e) => {
@@ -71,7 +92,7 @@ export default function NewBooking() {
         pricePerNight: parseFloat(pricePerNight),
         primaryGuestId: parseInt(primaryGuestId),
         notes: notes || null,
-        additionalGuestIds: []
+        additionalGuestIds: additionalGuests.map((g) => g.id)
       });
       navigate(`/bookings/${data.id}`);
     } catch (err) {
@@ -140,6 +161,41 @@ export default function NewBooking() {
               <option key={g.id} value={g.id}>{g.fullName} ({g.nationalId})</option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Additional Guests (optional)</label>
+          <div className="flex gap-2 mb-2">
+            <input
+              placeholder="Search by name..."
+              value={additionalSearch}
+              onChange={(e) => setAdditionalSearch(e.target.value)}
+              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            />
+            <button type="button" onClick={handleAdditionalSearch} className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-200">Search</button>
+          </div>
+          {additionalResults.length > 0 && (
+            <div className="border border-gray-200 rounded-lg mb-2 max-h-40 overflow-y-auto">
+              {additionalResults.map((g) => (
+                <button key={g.id} type="button" onClick={() => addAdditionalGuest(g)}
+                  className="w-full text-left px-3 py-2 text-sm border-b border-gray-100 last:border-0 hover:bg-gray-50 flex items-center gap-2">
+                  <span className="text-gray-600">{g.fullName}</span>
+                  <span className="text-gray-400 text-xs">{g.nationalId}</span>
+                  <span className="ml-auto text-blue-500 text-xs font-medium">+ Add</span>
+                </button>
+              ))}
+            </div>
+          )}
+          {additionalGuests.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {additionalGuests.map((g) => (
+                <span key={g.id} className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs px-2.5 py-1.5 rounded-full">
+                  {g.fullName}
+                  <button type="button" onClick={() => removeAdditionalGuest(g.id)} className="text-blue-400 hover:text-blue-700 leading-none">&times;</button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div>
