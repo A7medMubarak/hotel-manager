@@ -155,9 +155,7 @@ export default function Rooms() {
                 </div>
               </div>
             ) : (
-              <div key={r.id}
-                onClick={() => isOwner && startEdit(r)}
-                className={`bg-white rounded-xl border-2 p-4 shadow-sm ${isOwner ? 'cursor-pointer' : ''} ${statusColor(r.status).split(' ')[3] || 'border-gray-200'}`}>
+              <div key={r.id} className={`bg-white rounded-xl border-2 p-4 shadow-sm ${statusColor(r.status).split(' ')[3] || 'border-gray-200'}`}>
                 <div className="flex items-start justify-between mb-2">
                   <p className="text-lg font-bold text-gray-800">{r.number}</p>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor(r.status)}`}>{r.status}</span>
@@ -165,9 +163,14 @@ export default function Rooms() {
                 <p className="text-xs text-gray-500">Floor {r.floor} | {r.bedCount} bed{r.bedCount > 1 ? 's' : ''} | {r.bathroomType}</p>
                 <p className="text-sm font-medium text-gray-700 mt-1">EGP {r.basePricePerNight}/night</p>
                 {isOwner && r.status !== 'Occupied' && (
-                  <button onClick={(e) => { e.stopPropagation(); toggleMaintenance(r.id); }} className="mt-2 text-xs text-red-500 hover:text-red-700">
-                    {r.isUnderMaintenance ? 'Set Available' : 'Set Maintenance'}
-                  </button>
+                  <div className="flex gap-2 mt-2">
+                    <button onClick={() => toggleMaintenance(r.id)} className="text-xs text-red-500 hover:text-red-700">
+                      {r.isUnderMaintenance ? 'Set Available' : 'Set Maintenance'}
+                    </button>
+                    <button onClick={() => startEdit(r)} className="text-xs text-blue-500 hover:text-blue-700">
+                      Edit
+                    </button>
+                  </div>
                 )}
               </div>
             )

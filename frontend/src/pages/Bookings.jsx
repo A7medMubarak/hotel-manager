@@ -12,7 +12,7 @@ export default function Bookings() {
   const [loading, setLoading] = useState(true);
 
   const page = parseInt(searchParams.get('page') || '1');
-  const status = searchParams.get('status') || 'Active';
+  const status = searchParams.get('status') ?? 'Active';
   const guestName = searchParams.get('guestName') || '';
   const roomNumber = searchParams.get('roomNumber') || '';
   const checkInFrom = searchParams.get('checkInFrom') || '';
@@ -44,6 +44,7 @@ export default function Bookings() {
   const updateFilter = (key, value) => {
     const params = new URLSearchParams(searchParams);
     if (value) params.set(key, value);
+    else if (key === 'status') params.set(key, '');
     else params.delete(key);
     if (key !== 'page') params.set('page', '1');
     setSearchParams(params);
