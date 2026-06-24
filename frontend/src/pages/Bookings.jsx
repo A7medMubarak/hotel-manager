@@ -12,7 +12,7 @@ export default function Bookings() {
   const [loading, setLoading] = useState(true);
 
   const page = parseInt(searchParams.get('page') || '1');
-  const status = searchParams.get('status') || '';
+  const status = searchParams.get('status') || 'Active';
   const guestName = searchParams.get('guestName') || '';
   const roomNumber = searchParams.get('roomNumber') || '';
   const checkInFrom = searchParams.get('checkInFrom') || '';
