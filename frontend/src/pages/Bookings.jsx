@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import client from '../api/client';
+import { useTranslation } from 'react-i18next';
 
 const STATUS_OPTIONS = ['', 'Active', 'Completed', 'Cancelled'];
 
@@ -10,6 +11,7 @@ export default function Bookings() {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   const page = parseInt(searchParams.get('page') || '1');
   const status = searchParams.get('status') ?? 'Active';
@@ -33,7 +35,7 @@ export default function Bookings() {
       setTotalCount(data.totalCount);
       setTotalPages(data.totalPages);
     } catch (err) {
-      console.error('Failed to load bookings', err);
+      console.error(t('bookings.loadFailed'), err);
     } finally {
       setLoading(false);
     }
@@ -50,21 +52,30 @@ export default function Bookings() {
     setSearchParams(params);
   };
 
+  const statusLabel = (s) => {
+    switch (s) {
+      case 'Active': return t('bookings.active');
+      case 'Completed': return t('bookings.completed');
+      case 'Cancelled': return t('bookings.cancelled');
+      default: return t('bookings.all');
+    }
+  };
+
   const statusColor = (s) => {
     switch (s) {
-      case 'Active': return 'bg-green-100 text-green-700';
-      case 'Completed': return 'bg-blue-100 text-blue-700';
-      case 'Cancelled': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'Active': return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300';
+      case 'Completed': return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300';
+      case 'Cancelled': return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300';
+      default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-dark-muted';
     }
   };
 
   return (
     <div className="px-4 py-4">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-bold text-gray-800">Bookings</h1>
-        <Link to="/bookings/new" className="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg font-medium hover:bg-blue-700">
-          + New
+        <h1 className="text-xl font-bold text-gray-800 dark:text-dark-text">{t('bookings.title')}</h1>
+        <Link to="/bookings/new" className="bg-blue-600 dark:bg-dark-accent dark:text-gray-900 text-white text-sm px-4 py-2 rounded-lg font-medium hover:bg-blue-700 dark:hover:bg-blue-300 transition-colors">
+          {t('bookings.new')}
         </Link>
       </div>
 
@@ -74,33 +85,33 @@ export default function Bookings() {
             key={s}
             onClick={() => updateFilter('status', s)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
-              status === s ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
+              status === s ? 'bg-blue-600 dark:bg-dark-accent dark:text-gray-900 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-dark-muted'
             }`}
           >
-            {s || 'All'}
+            {statusLabel(s)}
           </button>
         ))}
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
         <input
-          placeholder="Guest name..."
+          placeholder={t('bookings.guestName')}
           value={guestName}
           onChange={(e) => updateFilter('guestName', e.target.value)}
-          className="flex-1 min-w-[140px] border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
+          className="flex-1 min-w-[140px] border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-dark-text rounded-lg px-3 py-1.5 text-sm transition-colors"
         />
         <input
-          placeholder="Room..."
+          placeholder={t('bookings.room')}
           value={roomNumber}
           onChange={(e) => updateFilter('roomNumber', e.target.value)}
-          className="w-24 border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
+          className="w-24 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-dark-text rounded-lg px-3 py-1.5 text-sm transition-colors"
         />
       </div>
 
       {loading ? (
-        <p className="text-center text-gray-400 py-8">Loading...</p>
+        <p className="text-center text-gray-400 dark:text-dark-muted py-8">{t('app.loading')}</p>
       ) : bookings.length === 0 ? (
-        <p className="text-center text-gray-400 py-8">No bookings found.</p>
+        <p className="text-center text-gray-400 dark:text-dark-muted py-8">{t('bookings.empty')}</p>
       ) : (
         <>
           <div className="space-y-3">
@@ -108,20 +119,20 @@ export default function Bookings() {
               <Link
                 key={b.id}
                 to={`/bookings/${b.id}`}
-                className="block bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow"
+                className="block bg-white dark:bg-dark-surface rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm dark:shadow-gray-900 hover:shadow-md dark:hover:shadow-gray-900 transition-all"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <p className="font-semibold text-gray-800">Room {b.roomNumber}</p>
-                    <p className="text-sm text-gray-500">{b.primaryGuestName}</p>
+                    <p className="font-semibold text-gray-800 dark:text-dark-text">{t('bookings.roomPrefix')}{b.roomNumber}</p>
+                    <p className="text-sm text-gray-500 dark:text-dark-muted">{b.primaryGuestName}</p>
                   </div>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor(b.status)}`}>
-                    {b.status}
+                    {statusLabel(b.status)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-500">
+                <div className="flex justify-between text-sm text-gray-500 dark:text-dark-muted">
                   <span>{b.checkIn} → {b.checkOut}</span>
-                  <span className="font-medium text-gray-700">{b.balance > 0 ? `EGP ${b.balance}` : 'Paid'}</span>
+                  <span className="font-medium text-gray-700 dark:text-dark-text">{b.balance > 0 ? `EGP ${b.balance}` : t('bookings.paid')}</span>
                 </div>
               </Link>
             ))}
@@ -132,17 +143,17 @@ export default function Bookings() {
               <button
                 onClick={() => updateFilter('page', String(page - 1))}
                 disabled={page <= 1}
-                className="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-30"
+                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 dark:text-dark-text rounded-lg disabled:opacity-30 transition-colors"
               >
-                Prev
+                {t('app.prev')}
               </button>
-              <span className="text-sm text-gray-500">{page} / {totalPages}</span>
+              <span className="text-sm text-gray-500 dark:text-dark-muted">{page} / {totalPages}</span>
               <button
                 onClick={() => updateFilter('page', String(page + 1))}
                 disabled={page >= totalPages}
-                className="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-30"
+                className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 dark:text-dark-text rounded-lg disabled:opacity-30 transition-colors"
               >
-                Next
+                {t('app.next')}
               </button>
             </div>
           )}
