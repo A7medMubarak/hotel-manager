@@ -36,8 +36,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins(frontendUrl)
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+              .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE")
+              .WithHeaders("Content-Type", "Authorization")
+              .AllowCredentials();
     });
 });
 
