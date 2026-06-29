@@ -13,7 +13,7 @@ public class BookingAvailabilityService : IBookingAvailabilityService
         _context = context;
     }
 
-    public async Task<bool> IsRoomAvailable(int roomId, DateOnly checkIn, DateOnly checkOut, int? excludeBookingId = null)
+    public async Task<bool> IsRoomAvailable(int roomId, DateOnly checkIn, DateOnly checkOut, int? excludeBookingId = null, CancellationToken cancellationToken = default)
     {
         var query = _context.Bookings.Where(b =>
             b.RoomId == roomId &&
@@ -24,6 +24,6 @@ public class BookingAvailabilityService : IBookingAvailabilityService
         if (excludeBookingId.HasValue)
             query = query.Where(b => b.Id != excludeBookingId.Value);
 
-        return !await query.AnyAsync();
+        return !await query.AnyAsync(cancellationToken);
     }
 }

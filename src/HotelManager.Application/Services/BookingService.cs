@@ -23,46 +23,46 @@ public class BookingService : IBookingService
         _availabilityService = availabilityService;
     }
 
-    public async Task<List<BookingSummaryDto>> GetActiveAsync()
-        => await _queryService.GetActiveAsync();
+    public async Task<List<BookingSummaryDto>> GetActiveAsync(CancellationToken cancellationToken = default)
+        => await _queryService.GetActiveAsync(cancellationToken);
 
-    public async Task<List<BookingSummaryDto>> GetCompletedAsync()
-        => await _queryService.GetCompletedAsync();
+    public async Task<List<BookingSummaryDto>> GetCompletedAsync(CancellationToken cancellationToken = default)
+        => await _queryService.GetCompletedAsync(cancellationToken);
 
-    public async Task<List<BookingSummaryDto>> GetCancelledAsync()
-        => await _queryService.GetCancelledAsync();
+    public async Task<List<BookingSummaryDto>> GetCancelledAsync(CancellationToken cancellationToken = default)
+        => await _queryService.GetCancelledAsync(cancellationToken);
 
-    public async Task<BookingDto> GetByIdAsync(int id)
-        => await _queryService.GetByIdAsync(id);
+    public async Task<BookingDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        => await _queryService.GetByIdAsync(id, cancellationToken);
 
-    public async Task<List<BookingSummaryDto>> SearchAsync(string query)
-        => await _queryService.SearchAsync(query);
+    public async Task<List<BookingSummaryDto>> SearchAsync(string query, CancellationToken cancellationToken = default)
+        => await _queryService.SearchAsync(query, cancellationToken);
 
-    public async Task<PagedResult<BookingSummaryDto>> GetFilteredAsync(BookingFilterRequest filter)
-        => await _queryService.GetFilteredAsync(filter);
+    public async Task<PagedResult<BookingSummaryDto>> GetFilteredAsync(BookingFilterRequest filter, CancellationToken cancellationToken = default)
+        => await _queryService.GetFilteredAsync(filter, cancellationToken);
 
-    public async Task<BookingDto> CreateAsync(CreateBookingRequest request, int createdByUserId)
+    public async Task<BookingDto> CreateAsync(CreateBookingRequest request, int createdByUserId, CancellationToken cancellationToken = default)
     {
         if (request.CheckIn >= request.CheckOut)
             throw new ArgumentException("CheckIn must be before CheckOut.");
 
-        var roomExists = await _context.Rooms.AnyAsync(r => r.Id == request.RoomId);
+        var roomExists = await _context.Rooms.AnyAsync(r => r.Id == request.RoomId, cancellationToken);
         if (!roomExists)
             throw new ArgumentException($"Room with id {request.RoomId} not found.");
 
-        var guestExists = await _context.Guests.AnyAsync(g => g.Id == request.PrimaryGuestId);
+        var guestExists = await _context.Guests.AnyAsync(g => g.Id == request.PrimaryGuestId, cancellationToken);
         if (!guestExists)
             throw new ArgumentException($"Guest with id {request.PrimaryGuestId} not found.");
 
         if (request.AdditionalGuestIds.Any())
         {
             var validIds = await _context.Guests
-                .CountAsync(g => request.AdditionalGuestIds.Contains(g.Id));
+                .CountAsync(g => request.AdditionalGuestIds.Contains(g.Id), cancellationToken);
             if (validIds != request.AdditionalGuestIds.Count)
                 throw new ArgumentException("One or more additional guest IDs are invalid.");
         }
 
-        var available = await _availabilityService.IsRoomAvailable(request.RoomId, request.CheckIn, request.CheckOut);
+        var available = await _availabilityService.IsRoomAvailable(request.RoomId, request.CheckIn, request.CheckOut, cancellationToken: cancellationToken);
         if (!available)
             throw new ArgumentException("Room is not available for the selected dates.");
 
@@ -94,14 +94,14 @@ public class BookingService : IBookingService
         }
 
         _context.Bookings.Add(booking);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
-        return await _queryService.GetByIdAsync(booking.Id);
+        return await _queryService.GetByIdAsync(booking.Id, cancellationToken);
     }
 
-    public async Task ExtendAsync(int id, ExtendBookingRequest request)
+    public async Task ExtendAsync(int id, ExtendBookingRequest request, CancellationToken cancellationToken = default)
     {
-        var booking = await _context.Bookings.FindAsync(id);
+        var booking = await _context.Bookings.FindAsync(new object[] { id }, cancellationToken);
 
         if (booking is null)
             throw new KeyNotFoundException($"Booking with id {id} not found.");
@@ -115,17 +115,17 @@ public class BookingService : IBookingService
         if (request.NewCheckOut <= booking.CheckOut)
             throw new ArgumentException("New CheckOut must be after current CheckOut.");
 
-        var available = await _availabilityService.IsRoomAvailable(booking.RoomId, booking.CheckIn, request.NewCheckOut, id);
+        var available = await _availabilityService.IsRoomAvailable(booking.RoomId, booking.CheckIn, request.NewCheckOut, id, cancellationToken);
         if (!available)
             throw new ArgumentException("Room is not available for the extended period.");
 
         booking.CheckOut = request.NewCheckOut;
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task CompleteAsync(int id)
+    public async Task CompleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var booking = await _context.Bookings.FindAsync(id);
+        var booking = await _context.Bookings.FindAsync(new object[] { id }, cancellationToken);
 
         if (booking is null)
             throw new KeyNotFoundException($"Booking with id {id} not found.");
@@ -134,12 +134,12 @@ public class BookingService : IBookingService
             throw new ArgumentException("Only active bookings can be completed.");
 
         booking.Status = BookingStatus.Completed;
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task CancelAsync(int id)
+    public async Task CancelAsync(int id, CancellationToken cancellationToken = default)
     {
-        var booking = await _context.Bookings.FindAsync(id);
+        var booking = await _context.Bookings.FindAsync(new object[] { id }, cancellationToken);
 
         if (booking is null)
             throw new KeyNotFoundException($"Booking with id {id} not found.");
@@ -148,6 +148,6 @@ public class BookingService : IBookingService
             throw new ArgumentException("Only active bookings can be cancelled.");
 
         booking.Status = BookingStatus.Cancelled;
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

@@ -17,7 +17,7 @@ public class BookingQueryService : IBookingQueryService
         _context = context;
     }
 
-    public async Task<List<BookingSummaryDto>> GetActiveAsync()
+    public async Task<List<BookingSummaryDto>> GetActiveAsync(CancellationToken cancellationToken = default)
     {
         var bookings = await _context.Bookings
             .AsNoTracking()
@@ -26,12 +26,12 @@ public class BookingQueryService : IBookingQueryService
             .Include(b => b.BookingGuests).ThenInclude(bg => bg.Guest)
             .Include(b => b.Payments)
             .OrderBy(b => b.CheckIn)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return bookings.Select(b => b.ToSummaryDto()).ToList();
     }
 
-    public async Task<List<BookingSummaryDto>> GetCompletedAsync()
+    public async Task<List<BookingSummaryDto>> GetCompletedAsync(CancellationToken cancellationToken = default)
     {
         var bookings = await _context.Bookings
             .AsNoTracking()
@@ -40,12 +40,12 @@ public class BookingQueryService : IBookingQueryService
             .Include(b => b.BookingGuests).ThenInclude(bg => bg.Guest)
             .Include(b => b.Payments)
             .OrderByDescending(b => b.CheckOut)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return bookings.Select(b => b.ToSummaryDto()).ToList();
     }
 
-    public async Task<List<BookingSummaryDto>> GetCancelledAsync()
+    public async Task<List<BookingSummaryDto>> GetCancelledAsync(CancellationToken cancellationToken = default)
     {
         var bookings = await _context.Bookings
             .AsNoTracking()
@@ -54,19 +54,19 @@ public class BookingQueryService : IBookingQueryService
             .Include(b => b.BookingGuests).ThenInclude(bg => bg.Guest)
             .Include(b => b.Payments)
             .OrderByDescending(b => b.CreatedAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return bookings.Select(b => b.ToSummaryDto()).ToList();
     }
 
-    public async Task<BookingDto> GetByIdAsync(int id)
+    public async Task<BookingDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var booking = await _context.Bookings
             .AsNoTracking()
             .Include(b => b.Room)
             .Include(b => b.BookingGuests).ThenInclude(bg => bg.Guest)
             .Include(b => b.Payments)
-            .FirstOrDefaultAsync(b => b.Id == id);
+            .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
 
         if (booking is null)
             throw new KeyNotFoundException($"Booking with id {id} not found.");
@@ -74,7 +74,7 @@ public class BookingQueryService : IBookingQueryService
         return booking.ToDetailDto();
     }
 
-    public async Task<List<BookingSummaryDto>> SearchAsync(string query)
+    public async Task<List<BookingSummaryDto>> SearchAsync(string query, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
             return [];
@@ -90,12 +90,12 @@ public class BookingQueryService : IBookingQueryService
                         b.BookingGuests.Any(bg => bg.Guest.FullName.Contains(query)) ||
                         b.BookingGuests.Any(bg => bg.Guest.NationalId.Contains(query)))
             .OrderByDescending(b => b.CreatedAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return bookings.Select(b => b.ToSummaryDto()).ToList();
     }
 
-    public async Task<PagedResult<BookingSummaryDto>> GetFilteredAsync(BookingFilterRequest filter)
+    public async Task<PagedResult<BookingSummaryDto>> GetFilteredAsync(BookingFilterRequest filter, CancellationToken cancellationToken = default)
     {
         if (filter.Page < 1) filter.Page = 1;
         if (filter.PageSize < 1) filter.PageSize = 20;
@@ -131,13 +131,13 @@ public class BookingQueryService : IBookingQueryService
         if (!string.IsNullOrWhiteSpace(filter.GuestName))
             query = query.Where(b => b.BookingGuests.Any(bg => bg.Guest.FullName.Contains(filter.GuestName)));
 
-        var totalCount = await query.CountAsync();
+        var totalCount = await query.CountAsync(cancellationToken);
 
         var bookings = await query
             .OrderByDescending(b => b.CreatedAt)
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return new PagedResult<BookingSummaryDto>
         {

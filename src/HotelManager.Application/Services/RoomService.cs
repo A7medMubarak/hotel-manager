@@ -16,7 +16,7 @@ public class RoomService : IRoomService
         _context = context;
     }
 
-    public async Task<List<RoomDto>> GetAllAsync()
+    public async Task<List<RoomDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
 
@@ -29,18 +29,18 @@ public class RoomService : IRoomService
                     b.CheckIn <= today &&
                     today < b.CheckOut)
             })
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return rooms.Select(x => MapToDto(x.Room, x.HasActiveBooking)).ToList();
     }
 
-    public async Task<RoomDto> GetByIdAsync(int id)
+    public async Task<RoomDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
 
         var room = await _context.Rooms
             .Include(r => r.Bookings)
-            .FirstOrDefaultAsync(r => r.Id == id);
+            .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
 
         if (room is null)
             throw new KeyNotFoundException($"Room with id {id} not found.");
@@ -53,10 +53,10 @@ public class RoomService : IRoomService
         return MapToDto(room, hasActiveBooking);
     }
 
-    public async Task<RoomDto> CreateAsync(CreateRoomRequest request)
+    public async Task<RoomDto> CreateAsync(CreateRoomRequest request, CancellationToken cancellationToken = default)
     {
         var existing = await _context.Rooms
-            .AnyAsync(r => r.Number == request.Number);
+            .AnyAsync(r => r.Number == request.Number, cancellationToken);
 
         if (existing)
             throw new ArgumentException($"Room number '{request.Number}' already exists.");
@@ -73,20 +73,20 @@ public class RoomService : IRoomService
         };
 
         _context.Rooms.Add(room);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return MapToDto(room, false);
     }
 
-    public async Task<RoomDto> UpdateAsync(int id, UpdateRoomRequest request)
+    public async Task<RoomDto> UpdateAsync(int id, UpdateRoomRequest request, CancellationToken cancellationToken = default)
     {
-        var room = await _context.Rooms.FindAsync(id);
+        var room = await _context.Rooms.FindAsync(new object[] { id }, cancellationToken);
 
         if (room is null)
             throw new KeyNotFoundException($"Room with id {id} not found.");
 
         var duplicate = await _context.Rooms
-            .AnyAsync(r => r.Number == request.Number && r.Id != id);
+            .AnyAsync(r => r.Number == request.Number && r.Id != id, cancellationToken);
 
         if (duplicate)
             throw new ArgumentException($"Room number '{request.Number}' is already in use.");
@@ -98,12 +98,12 @@ public class RoomService : IRoomService
         room.BasePricePerNight = request.BasePricePerNight;
         room.Notes = request.Notes;
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return MapToDto(room, false);
     }
 
-    public async Task<PagedResult<RoomDto>> GetFilteredAsync(RoomFilterRequest filter)
+    public async Task<PagedResult<RoomDto>> GetFilteredAsync(RoomFilterRequest filter, CancellationToken cancellationToken = default)
     {
         if (filter.Page < 1) filter.Page = 1;
         if (filter.PageSize < 1) filter.PageSize = 20;
@@ -137,13 +137,13 @@ public class RoomService : IRoomService
         if (filter.MinBedCount.HasValue)
             query = query.Where(x => x.Room.BedCount >= filter.MinBedCount.Value);
 
-        var totalCount = await query.CountAsync();
+        var totalCount = await query.CountAsync(cancellationToken);
 
         var rooms = await query
             .OrderBy(x => x.Room.Number)
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return new PagedResult<RoomDto>
         {
@@ -154,9 +154,9 @@ public class RoomService : IRoomService
         };
     }
 
-    public async Task ToggleMaintenanceAsync(int id)
+    public async Task ToggleMaintenanceAsync(int id, CancellationToken cancellationToken = default)
     {
-        var room = await _context.Rooms.FindAsync(id);
+        var room = await _context.Rooms.FindAsync(new object[] { id }, cancellationToken);
 
         if (room is null)
             throw new KeyNotFoundException($"Room with id {id} not found.");
@@ -164,13 +164,13 @@ public class RoomService : IRoomService
         var today = DateOnly.FromDateTime(DateTime.Today);
         var hasActiveBooking = await _context.Bookings
             .AnyAsync(b => b.RoomId == id && b.Status == BookingStatus.Active &&
-                           b.CheckIn <= today && today < b.CheckOut);
+                           b.CheckIn <= today && today < b.CheckOut, cancellationToken);
 
         if (hasActiveBooking)
             throw new ArgumentException("Cannot put room in maintenance while it has active bookings.");
 
         room.IsUnderMaintenance = !room.IsUnderMaintenance;
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     private static RoomDto MapToDto(Room room, bool hasActiveBooking)

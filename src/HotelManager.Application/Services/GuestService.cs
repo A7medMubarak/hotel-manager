@@ -15,19 +15,19 @@ public class GuestService : IGuestService
         _context = context;
     }
 
-    public async Task<List<GuestDto>> GetAllAsync()
+    public async Task<List<GuestDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var guests = await _context.Guests
             .OrderBy(g => g.FullName)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return guests.Select(MapToDto).ToList();
     }
 
-    public async Task<GuestDto> GetByIdAsync(int id)
+    public async Task<GuestDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var guest = await _context.Guests
-            .FirstOrDefaultAsync(g => g.Id == id);
+            .FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
 
         if (guest is null)
             throw new KeyNotFoundException($"Guest with id {id} not found.");
@@ -35,7 +35,7 @@ public class GuestService : IGuestService
         return MapToDto(guest);
     }
 
-    public async Task<List<GuestDto>> SearchAsync(string query)
+    public async Task<List<GuestDto>> SearchAsync(string query, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(query) || query.Length < 2)
             return [];
@@ -45,12 +45,12 @@ public class GuestService : IGuestService
         var guests = await _context.Guests
             .Where(g => g.FullName.Contains(query) || g.NationalId.Contains(query))
             .OrderBy(g => g.FullName)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return guests.Select(MapToDto).ToList();
     }
 
-    public async Task<PagedResult<GuestDto>> GetFilteredAsync(GuestFilterRequest filter)
+    public async Task<PagedResult<GuestDto>> GetFilteredAsync(GuestFilterRequest filter, CancellationToken cancellationToken = default)
     {
         if (filter.Page < 1) filter.Page = 1;
         if (filter.PageSize < 1) filter.PageSize = 20;
@@ -72,13 +72,13 @@ public class GuestService : IGuestService
         if (filter.CreatedTo.HasValue)
             query = query.Where(g => g.CreatedAt <= filter.CreatedTo.Value);
 
-        var totalCount = await query.CountAsync();
+        var totalCount = await query.CountAsync(cancellationToken);
 
         var guests = await query
             .OrderBy(g => g.FullName)
             .Skip((filter.Page - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return new PagedResult<GuestDto>
         {
@@ -89,10 +89,10 @@ public class GuestService : IGuestService
         };
     }
 
-    public async Task<GuestDto> CreateAsync(CreateGuestRequest request)
+    public async Task<GuestDto> CreateAsync(CreateGuestRequest request, CancellationToken cancellationToken = default)
     {
         var duplicate = await _context.Guests
-            .AnyAsync(g => g.NationalId == request.NationalId);
+            .AnyAsync(g => g.NationalId == request.NationalId, cancellationToken);
 
         if (duplicate)
             throw new ArgumentException($"A guest with National ID {request.NationalId} already exists.");
@@ -107,20 +107,20 @@ public class GuestService : IGuestService
         };
 
         _context.Guests.Add(guest);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return MapToDto(guest);
     }
 
-    public async Task<GuestDto> UpdateAsync(int id, UpdateGuestRequest request)
+    public async Task<GuestDto> UpdateAsync(int id, UpdateGuestRequest request, CancellationToken cancellationToken = default)
     {
-        var guest = await _context.Guests.FindAsync(id);
+        var guest = await _context.Guests.FindAsync(new object[] { id }, cancellationToken);
 
         if (guest is null)
             throw new KeyNotFoundException($"Guest with id {id} not found.");
 
         var duplicate = await _context.Guests
-            .AnyAsync(g => g.NationalId == request.NationalId && g.Id != id);
+            .AnyAsync(g => g.NationalId == request.NationalId && g.Id != id, cancellationToken);
 
         if (duplicate)
             throw new ArgumentException($"A guest with National ID {request.NationalId} already exists.");
@@ -130,7 +130,7 @@ public class GuestService : IGuestService
         guest.Address = request.Address;
         guest.Phone = request.Phone;
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return MapToDto(guest);
     }

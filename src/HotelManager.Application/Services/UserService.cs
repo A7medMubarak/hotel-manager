@@ -15,19 +15,21 @@ public class UserService : IUserService
         _context = context;
     }
 
-    public async Task<List<UserDto>> GetAllAsync()
+    public async Task<List<UserDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         var users = await _context.Users
             .OrderBy(u => u.Username)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return users.Select(MapToDto).ToList();
     }
 
-    public async Task<UserDto> CreateEmployeeAsync(CreateEmployeeRequest request, int createdByUserId)
+    public async Task<UserDto> CreateEmployeeAsync(CreateEmployeeRequest request, int createdByUserId, CancellationToken cancellationToken = default)
     {
+        request.Username = request.Username.Trim().ToLowerInvariant();
+
         var duplicate = await _context.Users
-            .AnyAsync(u => u.Username == request.Username);
+            .AnyAsync(u => u.Username == request.Username, cancellationToken);
 
         if (duplicate)
             throw new ArgumentException($"Username '{request.Username}' is already taken.");
@@ -41,23 +43,23 @@ public class UserService : IUserService
         };
 
         _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return MapToDto(user);
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         if (id == 1)
             throw new ArgumentException("Cannot delete the primary owner account.");
 
-        var user = await _context.Users.FindAsync(id);
+        var user = await _context.Users.FindAsync(new object[] { id }, cancellationToken);
 
         if (user is null)
             throw new KeyNotFoundException($"User with id {id} not found.");
 
         _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     private static UserDto MapToDto(User user) => new()

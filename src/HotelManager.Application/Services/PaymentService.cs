@@ -15,9 +15,9 @@ public class PaymentService : IPaymentService
         _context = context;
     }
 
-    public async Task<List<PaymentDto>> GetByBookingAsync(int bookingId)
+    public async Task<List<PaymentDto>> GetByBookingAsync(int bookingId, CancellationToken cancellationToken = default)
     {
-        var bookingExists = await _context.Bookings.AnyAsync(b => b.Id == bookingId);
+        var bookingExists = await _context.Bookings.AnyAsync(b => b.Id == bookingId, cancellationToken);
         if (!bookingExists)
             throw new KeyNotFoundException($"Booking with id {bookingId} not found.");
 
@@ -34,12 +34,12 @@ public class PaymentService : IPaymentService
                 CreatedByUserId = p.CreatedByUserId,
                 CreatedAt = p.CreatedAt
             })
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<PaymentDto> AddAsync(AddPaymentRequest request, int createdByUserId)
+    public async Task<PaymentDto> AddAsync(AddPaymentRequest request, int createdByUserId, CancellationToken cancellationToken = default)
     {
-        var booking = await _context.Bookings.FindAsync(request.BookingId);
+        var booking = await _context.Bookings.FindAsync(new object[] { request.BookingId }, cancellationToken);
         if (booking is null)
             throw new KeyNotFoundException($"Booking with id {request.BookingId} not found.");
 
@@ -60,7 +60,7 @@ public class PaymentService : IPaymentService
         };
 
         _context.Payments.Add(payment);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return new PaymentDto
         {
@@ -74,13 +74,13 @@ public class PaymentService : IPaymentService
         };
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var payment = await _context.Payments.FindAsync(id);
+        var payment = await _context.Payments.FindAsync(new object[] { id }, cancellationToken);
         if (payment is null)
             throw new KeyNotFoundException($"Payment with id {id} not found.");
 
         _context.Payments.Remove(payment);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

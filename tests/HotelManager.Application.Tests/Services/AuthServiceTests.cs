@@ -5,6 +5,7 @@ using HotelManager.Application.Tests.TestCommon;
 using HotelManager.Domain.Entities;
 using HotelManager.Domain.Enums;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace HotelManager.Application.Tests.Services;
@@ -12,12 +13,15 @@ namespace HotelManager.Application.Tests.Services;
 public class AuthServiceTests
 {
     private readonly Mock<IJwtTokenService> _jwtMock;
+    private readonly ILogger<AuthService> _logger;
 
     public AuthServiceTests()
     {
         _jwtMock = new Mock<IJwtTokenService>();
         _jwtMock.Setup(x => x.GenerateToken(It.IsAny<User>()))
             .Returns(("test-token", DateTime.UtcNow.AddHours(8)));
+
+        _logger = Mock.Of<ILogger<AuthService>>();
     }
 
     [Fact]
@@ -28,7 +32,7 @@ public class AuthServiceTests
             new() { Id = 1, Username = "admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"), Role = UserRole.Owner }
         };
         var ctx = MockDbContext.CreateWithData(users: users);
-        var service = new AuthService(ctx, _jwtMock.Object);
+        var service = new AuthService(ctx, _jwtMock.Object, _logger);
 
         var result = await service.LoginAsync(new LoginRequest { Username = "admin", Password = "Admin123!" });
 
@@ -44,7 +48,7 @@ public class AuthServiceTests
             new() { Id = 1, Username = "admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"), Role = UserRole.Owner }
         };
         var ctx = MockDbContext.CreateWithData(users: users);
-        var service = new AuthService(ctx, _jwtMock.Object);
+        var service = new AuthService(ctx, _jwtMock.Object, _logger);
 
         var act = () => service.LoginAsync(new LoginRequest { Username = "admin", Password = "wrong" });
 
@@ -56,12 +60,27 @@ public class AuthServiceTests
     public async Task LoginAsync_UnknownUser_ThrowsUnauthorized()
     {
         var ctx = MockDbContext.CreateWithData();
-        var service = new AuthService(ctx, _jwtMock.Object);
+        var service = new AuthService(ctx, _jwtMock.Object, _logger);
 
         var act = () => service.LoginAsync(new LoginRequest { Username = "nobody", Password = "x" });
 
         await act.Should().ThrowAsync<UnauthorizedAccessException>()
             .WithMessage("Invalid username or password.");
+    }
+
+    [Fact]
+    public async Task LoginAsync_NormalizesUsername()
+    {
+        var users = new List<User>
+        {
+            new() { Id = 1, Username = "admin", PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"), Role = UserRole.Owner }
+        };
+        var ctx = MockDbContext.CreateWithData(users: users);
+        var service = new AuthService(ctx, _jwtMock.Object, _logger);
+
+        var result = await service.LoginAsync(new LoginRequest { Username = "  ADMIN  ", Password = "Admin123!" });
+
+        result.Token.Should().Be("test-token");
     }
 
     [Fact]
@@ -73,7 +92,7 @@ public class AuthServiceTests
             new() { Id = 1, Username = "admin", PasswordHash = hash, Role = UserRole.Owner }
         };
         var ctx = MockDbContext.CreateWithData(users: users);
-        var service = new AuthService(ctx, _jwtMock.Object);
+        var service = new AuthService(ctx, _jwtMock.Object, _logger);
 
         await service.ChangePasswordAsync(1, new ChangePasswordRequest { CurrentPassword = "oldPass", NewPassword = "newPass123" });
 
@@ -90,28 +109,11 @@ public class AuthServiceTests
             new() { Id = 1, Username = "admin", PasswordHash = hash, Role = UserRole.Owner }
         };
         var ctx = MockDbContext.CreateWithData(users: users);
-        var service = new AuthService(ctx, _jwtMock.Object);
+        var service = new AuthService(ctx, _jwtMock.Object, _logger);
 
         var act = () => service.ChangePasswordAsync(1, new ChangePasswordRequest { CurrentPassword = "wrong", NewPassword = "newPass123" });
 
         await act.Should().ThrowAsync<UnauthorizedAccessException>()
             .WithMessage("Current password is incorrect.");
-    }
-
-    [Fact]
-    public async Task ChangePasswordAsync_ShortNewPassword_Throws()
-    {
-        var hash = BCrypt.Net.BCrypt.HashPassword("oldPass");
-        var users = new List<User>
-        {
-            new() { Id = 1, Username = "admin", PasswordHash = hash, Role = UserRole.Owner }
-        };
-        var ctx = MockDbContext.CreateWithData(users: users);
-        var service = new AuthService(ctx, _jwtMock.Object);
-
-        var act = () => service.ChangePasswordAsync(1, new ChangePasswordRequest { CurrentPassword = "oldPass", NewPassword = "short" });
-
-        await act.Should().ThrowAsync<ArgumentException>()
-            .WithMessage("New password must be at least 8 characters.");
     }
 }

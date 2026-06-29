@@ -15,7 +15,7 @@ public class ReportService : IReportService
         _context = context;
     }
 
-    public async Task<DailyReportDto> GetDailyAsync()
+    public async Task<DailyReportDto> GetDailyAsync(CancellationToken cancellationToken = default)
     {
         var businessDate = BusinessDateHelper.GetBusinessDate();
         var (windowStart, windowEnd) = BusinessDateHelper.GetBusinessDayWindow();
@@ -25,17 +25,17 @@ public class ReportService : IReportService
                 && b.CheckIn <= businessDate
                 && b.CheckOut > businessDate)
             .Include(b => b.Payments)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         var newCheckIns = await _context.Bookings
-            .CountAsync(b => b.CheckIn == businessDate);
+            .CountAsync(b => b.CheckIn == businessDate, cancellationToken);
 
         var newCheckOuts = await _context.Bookings
-            .CountAsync(b => b.CheckOut == businessDate);
+            .CountAsync(b => b.CheckOut == businessDate, cancellationToken);
 
         var totalCollected = await _context.Payments
             .Where(p => p.CreatedAt >= windowStart && p.CreatedAt < windowEnd)
-            .SumAsync(p => (decimal?)p.Amount) ?? 0;
+            .SumAsync(p => (decimal?)p.Amount, cancellationToken) ?? 0;
 
         var theoreticalRevenue = activeBookings.Sum(b =>
             BookingCalculator.TotalCost(b.CheckIn, b.CheckOut, b.PricePerNight));
@@ -55,14 +55,14 @@ public class ReportService : IReportService
         };
     }
 
-    public async Task<List<OutstandingBalanceDto>> GetOutstandingAsync()
+    public async Task<List<OutstandingBalanceDto>> GetOutstandingAsync(CancellationToken cancellationToken = default)
     {
         var bookings = await _context.Bookings
             .Where(b => b.Status == BookingStatus.Active)
             .Include(b => b.Room)
             .Include(b => b.BookingGuests).ThenInclude(bg => bg.Guest)
             .Include(b => b.Payments)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return bookings
             .Select(b =>
@@ -90,30 +90,30 @@ public class ReportService : IReportService
             .ToList();
     }
 
-    public async Task<PeriodReportDto> GetWeeklyAsync()
+    public async Task<PeriodReportDto> GetWeeklyAsync(CancellationToken cancellationToken = default)
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
         var saturday = today.AddDays(-((int)today.DayOfWeek + 1) % 7);
         var friday = saturday.AddDays(6);
 
-        return await GetPeriodReport(saturday, friday, "Weekly");
+        return await GetPeriodReport(saturday, friday, "Weekly", cancellationToken);
     }
 
-    public async Task<PeriodReportDto> GetMonthlyAsync()
+    public async Task<PeriodReportDto> GetMonthlyAsync(CancellationToken cancellationToken = default)
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
         var firstDay = new DateOnly(today.Year, today.Month, 1);
         var lastDay = firstDay.AddMonths(1).AddDays(-1);
 
-        return await GetPeriodReport(firstDay, lastDay, "Monthly");
+        return await GetPeriodReport(firstDay, lastDay, "Monthly", cancellationToken);
     }
 
-    private async Task<PeriodReportDto> GetPeriodReport(DateOnly startDate, DateOnly endDate, string period)
+    private async Task<PeriodReportDto> GetPeriodReport(DateOnly startDate, DateOnly endDate, string period, CancellationToken cancellationToken = default)
     {
         var bookings = await _context.Bookings
             .Where(b => b.CheckIn < endDate.AddDays(1) && b.CheckOut > startDate)
             .Include(b => b.Payments)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         var totalCollected = bookings
             .SelectMany(b => b.Payments)
