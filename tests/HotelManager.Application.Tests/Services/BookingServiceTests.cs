@@ -30,7 +30,9 @@ public class BookingServiceTests
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests, bookings: bookings,
             bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
-        var service = new BookingService(ctx);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
         var result = await service.GetActiveAsync();
 
@@ -41,7 +43,9 @@ public class BookingServiceTests
     public async Task CreateAsync_ValidRequest_CreatesBooking()
     {
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests);
-        var service = new BookingService(ctx);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
         var result = await service.CreateAsync(new CreateBookingRequest
         {
@@ -69,7 +73,9 @@ public class BookingServiceTests
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests, bookings: bookings,
             bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
-        var service = new BookingService(ctx);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
         var act = () => service.CreateAsync(new CreateBookingRequest
         {
@@ -93,7 +99,9 @@ public class BookingServiceTests
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests, bookings: bookings,
             bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
-        var service = new BookingService(ctx);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
         var result = await service.CreateAsync(new CreateBookingRequest
         {
@@ -116,7 +124,9 @@ public class BookingServiceTests
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings,
             bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
-        var service = new BookingService(ctx);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
         await service.ExtendAsync(1, new ExtendBookingRequest { NewCheckOut = new DateOnly(2026, 7, 6) });
 
@@ -133,7 +143,9 @@ public class BookingServiceTests
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings,
             bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
-        var service = new BookingService(ctx);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
         var act = () => service.ExtendAsync(1, new ExtendBookingRequest { NewCheckOut = new DateOnly(2026, 7, 6) });
 
@@ -149,7 +161,9 @@ public class BookingServiceTests
             new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings);
-        var service = new BookingService(ctx);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
         await service.CompleteAsync(1);
 
@@ -165,7 +179,9 @@ public class BookingServiceTests
             new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Cancelled }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings);
-        var service = new BookingService(ctx);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
         var act = () => service.CompleteAsync(1);
 
@@ -181,7 +197,9 @@ public class BookingServiceTests
             new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings);
-        var service = new BookingService(ctx);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
         await service.CancelAsync(1);
 
@@ -197,7 +215,9 @@ public class BookingServiceTests
             new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Completed }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings);
-        var service = new BookingService(ctx);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
         var act = () => service.CancelAsync(1);
 
@@ -214,7 +234,9 @@ public class BookingServiceTests
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests, bookings: bookings,
             bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
-        var service = new BookingService(ctx);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
         var result = await service.SearchAsync("101");
 
@@ -229,7 +251,9 @@ public class BookingServiceTests
             new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings);
-        var service = new BookingService(ctx);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
         var result = await service.SearchAsync("1");
 
@@ -249,7 +273,9 @@ public class BookingServiceTests
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests, bookings: bookings, payments: payments,
             bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
-        var service = new BookingService(ctx);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
         var result = await service.GetByIdAsync(1);
 

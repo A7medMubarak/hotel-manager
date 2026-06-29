@@ -28,6 +28,8 @@ public static class ServicesExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<IGuestService, GuestService>();
+        services.AddScoped<IBookingQueryService, BookingQueryService>();
+        services.AddScoped<IBookingAvailabilityService, BookingAvailabilityService>();
         services.AddScoped<IBookingService, BookingService>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IReportService, ReportService>();
