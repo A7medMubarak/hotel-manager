@@ -18,7 +18,7 @@ public static class ServicesExtensions
         services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
         {
             var provider = configuration.GetValue<string>("DatabaseProvider");
-            if (provider == "PostgreSql")
+            if (string.Equals(provider, "PostgreSql", StringComparison.OrdinalIgnoreCase))
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
             else
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
