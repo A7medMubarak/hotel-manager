@@ -17,30 +17,30 @@ public class ReportsController : ControllerBase
     }
 
     [HttpGet("daily")]
-    public async Task<IActionResult> GetDaily()
+    public async Task<IActionResult> GetDaily(CancellationToken cancellationToken)
     {
-        var report = await _reportService.GetDailyAsync();
+        var report = await _reportService.GetDailyAsync(cancellationToken);
         return Ok(report);
     }
 
     [HttpGet("outstanding")]
-    public async Task<IActionResult> GetOutstanding()
+    public async Task<IActionResult> GetOutstanding(CancellationToken cancellationToken)
     {
-        var report = await _reportService.GetOutstandingAsync();
+        var report = await _reportService.GetOutstandingAsync(cancellationToken);
         return Ok(report);
     }
 
     [HttpGet("weekly")]
-    public async Task<IActionResult> GetWeekly()
+    public async Task<IActionResult> GetWeekly(CancellationToken cancellationToken)
     {
-        var report = await _reportService.GetWeeklyAsync();
+        var report = await _reportService.GetWeeklyAsync(cancellationToken);
         return Ok(report);
     }
 
     [HttpGet("monthly")]
-    public async Task<IActionResult> GetMonthly()
+    public async Task<IActionResult> GetMonthly(CancellationToken cancellationToken)
     {
-        var report = await _reportService.GetMonthlyAsync();
+        var report = await _reportService.GetMonthlyAsync(cancellationToken);
         return Ok(report);
     }
 }

@@ -1,4 +1,4 @@
-using System.Security.Claims;
+using HotelManager.API.Extensions;
 using HotelManager.Application.DTOs.Payments;
 using HotelManager.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -18,26 +18,25 @@ public class PaymentsController : ControllerBase
         _paymentService = paymentService;
     }
 
-    [HttpGet("booking/{bookingId}")]
-    public async Task<IActionResult> GetByBooking(int bookingId)
+    [HttpGet("booking/{bookingId:int}")]
+    public async Task<IActionResult> GetByBooking(int bookingId, CancellationToken cancellationToken)
     {
-        var payments = await _paymentService.GetByBookingAsync(bookingId);
+        var payments = await _paymentService.GetByBookingAsync(bookingId, cancellationToken);
         return Ok(payments);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add([FromBody] AddPaymentRequest request)
+    public async Task<IActionResult> Add([FromBody] AddPaymentRequest request, CancellationToken cancellationToken)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        var payment = await _paymentService.AddAsync(request, userId);
+        var payment = await _paymentService.AddAsync(request, User.GetUserId(), cancellationToken);
         return CreatedAtAction(nameof(GetByBooking), new { bookingId = payment.BookingId }, payment);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        await _paymentService.DeleteAsync(id);
+        await _paymentService.DeleteAsync(id, cancellationToken);
         return NoContent();
     }
 }

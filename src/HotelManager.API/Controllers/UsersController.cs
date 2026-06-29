@@ -1,3 +1,4 @@
+using HotelManager.API.Extensions;
 using HotelManager.Application.DTOs.Users;
 using HotelManager.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -18,26 +19,23 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var users = await _userService.GetAllAsync();
+        var users = await _userService.GetAllAsync(cancellationToken);
         return Ok(users);
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateEmployee([FromBody] CreateEmployeeRequest request)
+    public async Task<IActionResult> CreateEmployee([FromBody] CreateEmployeeRequest request, CancellationToken cancellationToken)
     {
-        var ownerId = int.Parse(User.FindFirst(
-            System.Security.Claims.ClaimTypes.NameIdentifier)!.Value);
-
-        var user = await _userService.CreateEmployeeAsync(request, ownerId);
+        var user = await _userService.CreateEmployeeAsync(request, User.GetUserId(), cancellationToken);
         return CreatedAtAction(nameof(GetAll), new { id = user.Id }, user);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
-        await _userService.DeleteAsync(id);
+        await _userService.DeleteAsync(id, cancellationToken);
         return NoContent();
     }
 }

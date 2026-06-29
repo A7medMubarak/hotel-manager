@@ -18,40 +18,40 @@ public class RoomsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] RoomFilterRequest filter)
+    public async Task<IActionResult> GetAll([FromQuery] RoomFilterRequest filter, CancellationToken cancellationToken)
     {
-        var rooms = await _roomService.GetFilteredAsync(filter);
+        var rooms = await _roomService.GetFilteredAsync(filter, cancellationToken);
         return Ok(rooms);
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var room = await _roomService.GetByIdAsync(id);
+        var room = await _roomService.GetByIdAsync(id, cancellationToken);
         return Ok(room);
     }
 
     [HttpPost]
     [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> Create([FromBody] CreateRoomRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateRoomRequest request, CancellationToken cancellationToken)
     {
-        var room = await _roomService.CreateAsync(request);
+        var room = await _roomService.CreateAsync(request, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = room.Id }, room);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateRoomRequest request)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateRoomRequest request, CancellationToken cancellationToken)
     {
-        var room = await _roomService.UpdateAsync(id, request);
+        var room = await _roomService.UpdateAsync(id, request, cancellationToken);
         return Ok(room);
     }
 
-    [HttpPatch("{id}/maintenance")]
+    [HttpPatch("{id:int}/maintenance")]
     [Authorize(Roles = "Owner")]
-    public async Task<IActionResult> ToggleMaintenance(int id)
+    public async Task<IActionResult> ToggleMaintenance(int id, CancellationToken cancellationToken)
     {
-        await _roomService.ToggleMaintenanceAsync(id);
+        await _roomService.ToggleMaintenanceAsync(id, cancellationToken);
         return NoContent();
     }
 }

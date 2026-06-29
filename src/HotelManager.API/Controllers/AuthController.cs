@@ -1,4 +1,4 @@
-using System.Security.Claims;
+using HotelManager.API.Extensions;
 using HotelManager.Application.DTOs.Auth;
 using HotelManager.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -20,18 +20,17 @@ public class AuthController : ControllerBase
 
     [HttpPost("login")]
     [EnableRateLimiting("Login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
-        var response = await _authService.LoginAsync(request);
+        var response = await _authService.LoginAsync(request, cancellationToken);
         return Ok(response);
     }
 
     [HttpPatch("password")]
     [Authorize]
-    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-        await _authService.ChangePasswordAsync(userId, request);
+        await _authService.ChangePasswordAsync(User.GetUserId(), request, cancellationToken);
         return NoContent();
     }
 }
