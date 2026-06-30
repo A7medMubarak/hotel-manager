@@ -116,6 +116,96 @@ public class BookingServiceTests
     }
 
     [Fact]
+    public async Task CreateAsync_RoomUnderMaintenance_Throws()
+    {
+        var rooms = new List<Room>
+        {
+            new() { Id = 1, Number = "101", Floor = 1, BedCount = 2, BathroomType = BathroomType.Ensuite, BasePricePerNight = 250, IsUnderMaintenance = true }
+        };
+        var ctx = MockDbContext.CreateWithData(rooms: rooms, guests: _guests);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
+
+        var act = () => service.CreateAsync(new CreateBookingRequest
+        {
+            RoomId = 1,
+            CheckIn = new DateOnly(2026, 8, 1),
+            CheckOut = new DateOnly(2026, 8, 4),
+            PricePerNight = 250,
+            PrimaryGuestId = 1
+        }, createdByUserId: 1);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("Room is under maintenance and cannot be booked.");
+    }
+
+    [Fact]
+    public async Task CreateAsync_RoomNotUnderMaintenance_Creates()
+    {
+        var rooms = new List<Room>
+        {
+            new() { Id = 1, Number = "101", Floor = 1, BedCount = 2, BathroomType = BathroomType.Ensuite, BasePricePerNight = 250, IsUnderMaintenance = false }
+        };
+        var ctx = MockDbContext.CreateWithData(rooms: rooms, guests: _guests);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
+
+        var result = await service.CreateAsync(new CreateBookingRequest
+        {
+            RoomId = 1,
+            CheckIn = new DateOnly(2026, 8, 1),
+            CheckOut = new DateOnly(2026, 8, 4),
+            PricePerNight = 250,
+            PrimaryGuestId = 1
+        }, createdByUserId: 1);
+
+        result.Should().NotBeNull();
+        result.Status.Should().Be("Active");
+    }
+
+    [Fact]
+    public async Task CompleteAsync_WithOutstandingBalance_Throws()
+    {
+        var bookings = new List<Booking>
+        {
+            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+        };
+        var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
+
+        var act = () => service.CompleteAsync(1);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("Cannot complete booking with outstanding balance.");
+    }
+
+    [Fact]
+    public async Task CompleteAsync_WithZeroBalance_Completes()
+    {
+        var bookings = new List<Booking>
+        {
+            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+        };
+        var payments = new List<Payment>
+        {
+            new() { Id = 1, BookingId = 1, Amount = 750, PaymentDate = DateTime.UtcNow }
+        };
+        var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings, payments: payments);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
+
+        await service.CompleteAsync(1);
+
+        var updated = await ctx.Bookings.FindAsync(1);
+        updated!.Status.Should().Be(BookingStatus.Completed);
+    }
+
+    [Fact]
     public async Task ExtendAsync_ValidRequest_UpdatesCheckOut()
     {
         var bookings = new List<Booking>
@@ -160,7 +250,11 @@ public class BookingServiceTests
         {
             new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
         };
-        var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings);
+        var payments = new List<Payment>
+        {
+            new() { Id = 1, BookingId = 1, Amount = 750, PaymentDate = DateTime.UtcNow }
+        };
+        var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings, payments: payments);
         var bookingQueryService = new BookingQueryService(ctx);
         var bookingAvailabilityService = new BookingAvailabilityService(ctx);
         var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);

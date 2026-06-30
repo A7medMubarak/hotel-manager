@@ -1,3 +1,4 @@
+using HotelManager.Application.Common;
 using HotelManager.Application.DTOs.Bookings;
 using HotelManager.Application.DTOs.Common;
 using HotelManager.Application.Services.Interfaces;
@@ -46,9 +47,11 @@ public class BookingService : IBookingService
         if (request.CheckIn >= request.CheckOut)
             throw new ArgumentException("CheckIn must be before CheckOut.");
 
-        var roomExists = await _context.Rooms.AnyAsync(r => r.Id == request.RoomId, cancellationToken);
-        if (!roomExists)
+        var room = await _context.Rooms.FindAsync(new object[] { request.RoomId }, cancellationToken);
+        if (room is null)
             throw new ArgumentException($"Room with id {request.RoomId} not found.");
+        if (room.IsUnderMaintenance)
+            throw new ArgumentException("Room is under maintenance and cannot be booked.");
 
         var guestExists = await _context.Guests.AnyAsync(g => g.Id == request.PrimaryGuestId, cancellationToken);
         if (!guestExists)
@@ -132,6 +135,13 @@ public class BookingService : IBookingService
 
         if (booking.Status != BookingStatus.Active)
             throw new ArgumentException("Only active bookings can be completed.");
+
+        var payments = await _context.Payments
+            .Where(p => p.BookingId == id)
+            .ToListAsync(cancellationToken);
+        var balance = BookingCalculator.Balance(booking.CheckIn, booking.CheckOut, booking.PricePerNight, payments);
+        if (balance > 0)
+            throw new ArgumentException("Cannot complete booking with outstanding balance.");
 
         booking.Status = BookingStatus.Completed;
         await _context.SaveChangesAsync(cancellationToken);
