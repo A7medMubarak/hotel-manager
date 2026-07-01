@@ -28,6 +28,7 @@
   "nav.guests": "النزلاء",
   "nav.rooms": "الغرف",
   "nav.reports": "التقارير",
+  "nav.users": "المستخدمين",
 
   "login.title": "مدير الفندق",
   "login.signIn": "تسجيل الدخول",
@@ -182,6 +183,19 @@
   "status.occupied": "مشغول",
   "status.maintenance": "صيانة",
 
-  "role.owner": "مالك",
-  "role.employee": "موظف"
+  "role.owner": "مدير",
+  "role.employee": "موظف",
+
+  "users.title": "المستخدمين",
+  "users.new": "+ جديد",
+  "users.empty": "لا يوجد مستخدمين.",
+  "users.deleted": "تم حذف المستخدم.",
+  "users.deleteFailed": "فشل حذف المستخدم.",
+  "users.deleteConfirm": "حذف هذا المستخدم؟",
+
+  "newUser.title": "موظف جديد",
+  "newUser.username": "اسم المستخدم",
+  "newUser.password": "كلمة المرور",
+  "newUser.create": "إنشاء موظف",
+  "newUser.createFailed": "فشل إنشاء الموظف."
 }

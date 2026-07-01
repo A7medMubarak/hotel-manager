@@ -21,9 +21,7 @@ public static class DbInitializer
         {
             var defaultPassword = Environment.GetEnvironmentVariable("DefaultAdminPassword") ?? "Admin123!";
 
-            logger.LogInformation("No users found. Creating default owner account...");
-            logger.LogInformation("Username: admin");
-            logger.LogWarning("IMPORTANT: Change the default admin password immediately after first login.");
+            logger.LogInformation("No users found. Creating default accounts...");
 
             var owner = new User
             {
@@ -33,10 +31,19 @@ public static class DbInitializer
                 CreatedAt = DateTime.UtcNow
             };
 
-            context.Users.Add(owner);
+            var employee = new User
+            {
+                Username = "employee",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Employee123!"),
+                Role = UserRole.Employee,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            context.Users.AddRange(owner, employee);
             await context.SaveChangesAsync();
 
-            logger.LogInformation("Default owner account created successfully.");
+            logger.LogInformation("Default accounts created: admin (Owner), employee (Employee)");
+            logger.LogWarning("IMPORTANT: Change the default passwords immediately after first login.");
         }
 
         if (!context.Rooms.Any())

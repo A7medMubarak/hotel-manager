@@ -28,6 +28,7 @@
   "nav.guests": "Guests",
   "nav.rooms": "Rooms",
   "nav.reports": "Reports",
+  "nav.users": "Users",
 
   "login.title": "Hotel Manager",
   "login.signIn": "Sign In",
@@ -182,6 +183,19 @@
   "status.occupied": "Occupied",
   "status.maintenance": "Maintenance",
 
-  "role.owner": "Owner",
-  "role.employee": "Employee"
+  "role.owner": "Admin",
+  "role.employee": "Employee",
+
+  "users.title": "Users",
+  "users.new": "+ New",
+  "users.empty": "No users found.",
+  "users.deleted": "User deleted.",
+  "users.deleteFailed": "Failed to delete user.",
+  "users.deleteConfirm": "Delete this user?",
+
+  "newUser.title": "New Employee",
+  "newUser.username": "Username",
+  "newUser.password": "Password",
+  "newUser.create": "Create Employee",
+  "newUser.createFailed": "Failed to create employee."
 }
