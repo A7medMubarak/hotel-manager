@@ -20,7 +20,10 @@ export default function Layout() {
     { to: '/bookings', label: t('nav.bookings'), icon: '📋' },
     { to: '/guests', label: t('nav.guests'), icon: '👤' },
     { to: '/rooms', label: t('nav.rooms'), icon: '🚪' },
-    ...(isOwner ? [{ to: '/reports', label: t('nav.reports'), icon: '📊' }] : []),
+    ...(isOwner ? [
+      { to: '/reports', label: t('nav.reports'), icon: '📊' },
+      { to: '/users', label: t('nav.users'), icon: '👥' },
+    ] : []),
   ];
 
   return (

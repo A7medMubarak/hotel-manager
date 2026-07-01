@@ -12,6 +12,8 @@ import NewGuest from './pages/NewGuest';
 import Rooms from './pages/Rooms';
 import NewRoom from './pages/NewRoom';
 import Reports from './pages/Reports';
+import Users from './pages/Users';
+import NewUser from './pages/NewUser';
 
 export default function App() {
   return (
@@ -29,6 +31,8 @@ export default function App() {
             <Route path="/rooms" element={<Rooms />} />
             <Route path="/rooms/new" element={<NewRoom />} />
             <Route path="/reports" element={<ProtectedRoute role="Owner"><Reports /></ProtectedRoute>} />
+            <Route path="/users" element={<ProtectedRoute role="Owner"><Users /></ProtectedRoute>} />
+            <Route path="/users/new" element={<ProtectedRoute role="Owner"><NewUser /></ProtectedRoute>} />
             <Route path="/" element={<Navigate to="/bookings" replace />} />
           </Route>
         </Routes>
