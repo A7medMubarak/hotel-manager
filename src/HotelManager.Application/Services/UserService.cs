@@ -38,7 +38,7 @@ public class UserService : IUserService
         {
             Username = request.Username,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            Role = UserRole.Employee,
+            Role = Enum.Parse<UserRole>(request.Role),
             CreatedAt = DateTime.UtcNow
         };
 

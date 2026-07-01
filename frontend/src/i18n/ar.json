@@ -193,9 +193,12 @@
   "users.deleteFailed": "فشل حذف المستخدم.",
   "users.deleteConfirm": "حذف هذا المستخدم؟",
 
-  "newUser.title": "موظف جديد",
+  "newUser.title": "مستخدم جديد",
   "newUser.username": "اسم المستخدم",
   "newUser.password": "كلمة المرور",
-  "newUser.create": "إنشاء موظف",
-  "newUser.createFailed": "فشل إنشاء الموظف."
+  "newUser.role": "الدور",
+  "newUser.roleAdmin": "مدير",
+  "newUser.roleEmployee": "موظف",
+  "newUser.create": "إنشاء مستخدم",
+  "newUser.createFailed": "فشل إنشاء المستخدم."
 }

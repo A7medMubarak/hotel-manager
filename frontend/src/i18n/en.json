@@ -193,9 +193,12 @@
   "users.deleteFailed": "Failed to delete user.",
   "users.deleteConfirm": "Delete this user?",
 
-  "newUser.title": "New Employee",
+  "newUser.title": "New User",
   "newUser.username": "Username",
   "newUser.password": "Password",
-  "newUser.create": "Create Employee",
-  "newUser.createFailed": "Failed to create employee."
+  "newUser.role": "Role",
+  "newUser.roleAdmin": "Admin",
+  "newUser.roleEmployee": "Employee",
+  "newUser.create": "Create User",
+  "newUser.createFailed": "Failed to create user."
 }

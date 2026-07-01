@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 export default function NewUser() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [form, setForm] = useState({ username: '', password: '' });
+  const [form, setForm] = useState({ username: '', password: '', role: 'Employee' });
   const [error, setError] = useState('');
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -33,6 +33,13 @@ export default function NewUser() {
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-dark-muted mb-1">{t('newUser.username')}</label>
           <input name="username" value={form.username} onChange={handleChange} className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-dark-text rounded-lg px-3 py-2 text-sm transition-colors" required />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-dark-muted mb-1">{t('newUser.role')}</label>
+          <select name="role" value={form.role} onChange={handleChange} className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-dark-text rounded-lg px-3 py-2 text-sm transition-colors">
+            <option value="Employee">{t('newUser.roleEmployee')}</option>
+            <option value="Owner">{t('newUser.roleAdmin')}</option>
+          </select>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-dark-muted mb-1">{t('newUser.password')}</label>
