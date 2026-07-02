@@ -8,7 +8,7 @@
 •
 [🚀 Backend API](https://hotel-manager.runasp.net)
 •
-[📚 Engineering Case Study](docs/CASE_STUDY.md)
+[📚 Engineering Case Study](docs/ENGINEERING.md)
 
 </p>
 
@@ -156,7 +156,7 @@ Infrastructure
 
 For the complete architecture explanation:
 
-➡ **docs/CASE_STUDY.md**
+➡ **docs/ENGINEERING.md**
 
 ---
 
@@ -261,7 +261,7 @@ Topics include:
 
 📖 **Read:**
 
-docs/CASE_STUDY.md
+docs/ENGINEERING.md
 
 ---
 
