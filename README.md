@@ -27,11 +27,18 @@
 
 🎥 **Quick Demo**
 
-Watch the complete booking workflow in under 2 minutes.
-
-| 🖥️ Hotel Demo                                                            |
-| :----------------------------------------------------------------------- |
+| 🖥️ Hotel Demo |
+|:--------------|
 | <img src="docs/assets/demo/hotel-demo.gif" width="900" alt="Hotel Demo"> |
+
+| Login | Dashboard | Booking Details |
+|-------|-----------|-----------------|
+| <img src="docs/assets/images/login.png" width="300" alt="Login"> | <img src="docs/assets/images/dashboard.png" width="300" alt="Dashboard"> | <img src="docs/assets/images/booking-details.png" width="300" alt="Booking Details"> |
+
+| Rooms | Reports | Arabic (RTL) |
+|-------|---------|--------------|
+| <img src="docs/assets/images/rooms.png" width="300" alt="Rooms"> | <img src="docs/assets/images/reports.png" width="300" alt="Reports"> | <img src="docs/assets/images/arabic-ui.png" width="300" alt="Arabic UI"> |
+
 ---
 
 # Why This Project?
