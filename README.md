@@ -4,9 +4,7 @@
 
 <p align="center">
 
-[🌐 Live Demo](https://hotel-manager-alpha.vercel.app)
-•
-[🚀 Backend API](https://hotel-manager.runasp.net)
+[🌐 Live](https://hotel-manager-alpha.vercel.app)
 •
 [📚 Engineering Case Study](docs/ENGINEERING.md)
 
