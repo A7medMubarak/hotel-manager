@@ -39,6 +39,10 @@
 |-------|---------|--------------|
 | <img src="docs/assets/images/rooms.png" width="300" alt="Rooms"> | <img src="docs/assets/images/reports.png" width="300" alt="Reports"> | <img src="docs/assets/images/arabic-ui.png" width="300" alt="Arabic UI"> |
 
+| Dark Mode | Dark Mode (EN) | Dark Mode (AR) |
+|-----------|----------------|----------------|
+| <img src="docs/assets/images/dark-mode.png" width="300" alt="Dark Mode"> | <img src="docs/assets/images/dark-mode-en.png" width="300" alt="Dark Mode English"> | <img src="docs/assets/images/dark-mode-ar.png" width="300" alt="Dark Mode Arabic"> |
+
 ---
 
 # Why This Project?
