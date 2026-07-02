@@ -27,17 +27,13 @@
 
 ## 📸 Preview
 
-> Replace these placeholders with your screenshots.
+🎥 **Quick Demo**
 
-<p align="center">
-<img src="docs/assets/images/dashboard.webp" width="900">
-</p>
+Watch the complete booking workflow in under 2 minutes.
 
-<p align="center">
-<img src="docs/assets/images/bookings.webp" width="440">
-<img src="docs/assets/images/reports.webp" width="440">
-</p>
-
+| 🖥️ Hotel Demo                                                            |
+| :----------------------------------------------------------------------- |
+| <img src="docs/assets/demo/hotel-demo.gif" width="900" alt="Hotel Demo"> |
 ---
 
 # Why This Project?
