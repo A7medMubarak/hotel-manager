@@ -19,7 +19,7 @@
 ![JWT](https://img.shields.io/badge/JWT-Authentication-black?style=for-the-badge)
 ![Clean Architecture](https://img.shields.io/badge/Clean_Architecture-blue?style=for-the-badge)
 ![GitHub Actions](https://img.shields.io/badge/CI/CD-GitHub_Actions-2088FF?style=for-the-badge)
-![Tests](https://img.shields.io/badge/Tests-75_Passing-success?style=for-the-badge)
+![Tests](https://img.shields.io/badge/Tests-87_Passing-success?style=for-the-badge)
 
 ---
 
@@ -83,7 +83,8 @@ The goal was to combine **real hospitality domain knowledge** with modern softwa
 ## Business Rules
 
 - Room availability validation
-- Prevent double booking
+- Prevent double booking (DB-level UNIQUE(RoomId, Date) via BookingNights + 409 Conflict)
+- Same-day / day-use bookings (single night row)
 - Night Audit / Business Day workflow
 - Booking lifecycle management
 - Outstanding balance calculation
@@ -173,7 +174,7 @@ For the complete architecture explanation:
 
 ✔ Clean Architecture
 
-✔ 75 Automated Tests
+✔ 87 Automated Tests
 
 ✔ CI/CD Pipeline
 
@@ -207,7 +208,7 @@ Current test suite includes
 
 Result
 
-✅ 75 Passing Tests
+✅ 87 Passing Tests
 
 ---
 

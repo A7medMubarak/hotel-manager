@@ -35,8 +35,8 @@ The Domain layer has zero dependency on ASP.NET Core, EF Core, or SQL Server —
 1. React sends `POST /api/bookings` with a Bearer token attached by an Axios interceptor.
 2. ASP.NET Core validates the JWT (signature, expiry, issuer, audience) before the request reaches the controller.
 3. `BookingsController` — thin, no business logic — hands off to `IBookingService`.
-4. `BookingService` orchestrates the use case: calls `BookingAvailabilityService` to confirm the room is free and non-overlapping, calls `BookingQueryService` for any read-only lookups it needs, then applies the remaining rules (chronological dates, primary guest present, room not under maintenance).
-5. On success, EF Core persists through `IApplicationDbContext`; the controller returns a `BookingDto` — never the EF entity — with `201 Created`.
+4. `BookingService` orchestrates the use case: calls `BookingAvailabilityService` to confirm the room is free and non-overlapping (`CheckIn < checkOut && CheckOut > checkIn`, Active only), calls `BookingQueryService` for any read-only lookups it needs, then applies the remaining rules (chronological dates with same-day counting as one night, primary guest present, room not under maintenance).
+5. On success, EF Core persists booking plus `BookingNight` rows in a single atomic `SaveChangesAsync`; a unique-constraint race maps to `RoomNotAvailableException` → `409 Conflict`. The controller returns a `BookingDto` — never the EF entity — with `201 Created`.
 
 Read paths (search, filtering, `GetById`) go through `BookingQueryService` and use `AsNoTracking()`, since they never modify data.
 
@@ -101,10 +101,10 @@ Also skipped for the same reason: MediatR/full CQRS, microservices, and prematur
 
 | Rule | Why it exists |
 |---|---|
-| Rooms can't have overlapping active bookings | Prevents double-booking |
+| Rooms can't have overlapping active bookings | Prevents double-booking — pre-check plus DB-level UNIQUE(RoomId, Date) on BookingNights, races return 409 Conflict |
 | Extensions re-validate availability | Prevents an extension from silently creating a conflict |
 | Rooms under maintenance can't be booked | Keeps unavailable rooms out of the booking flow |
-| Check-out must be after check-in, minimum one night | Basic chronological sanity |
+| Check-out must be after check-in; same-day counts as one night | Basic chronological sanity plus day-use support |
 | Every booking has a primary guest | Someone is accountable for the reservation |
 | Payments only attach to active bookings | Prevents orphaned financial records |
 | Outstanding balance is calculated, never stored | One source of truth — total minus payments, always |
@@ -130,7 +130,7 @@ The one current gap: the GitHub Actions pipeline builds and publishes but doesn'
 
 ## Testing
 
-75 xUnit tests, run against EF Core's InMemory provider so the suite has no external dependencies and stays fast and deterministic. Coverage focuses on where the actual risk is — application services, FluentValidation validators, and the shared calculation helpers (`BookingCalculator`, `BusinessDateHelper`) — rather than chasing a coverage number.
+87 xUnit tests, run against EF Core's InMemory provider so the suite has no external dependencies and stays fast and deterministic. Coverage focuses on where the actual risk is — application services, FluentValidation validators, and the shared calculation helpers (`BookingCalculator`, `BusinessDateHelper`) — rather than chasing a coverage number.
 
 The tests earned their keep during the `BookingService` refactor above: splitting one service into three is exactly the kind of change that's easy to get subtly wrong, and the existing suite staying green through it was the real confidence check, not code review.
 
