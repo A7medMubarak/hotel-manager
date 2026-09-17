@@ -14,7 +14,7 @@ public class BusinessDateHelperTests
         // We can't easily mock DateTime.Now, but we can test the logic
         // BusinessDateHelper relies on DateTime.Now - tested via behavior
         var result = BusinessDateHelper.GetBusinessDate();
-        result.Should().BeOnOrBefore(DateOnly.FromDateTime(DateTime.Today));
+        result.Should().BeOnOrBefore(DateTime.UtcNow.Date);
     }
 
     [Fact]

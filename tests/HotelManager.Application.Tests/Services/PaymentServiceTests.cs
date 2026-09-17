@@ -14,7 +14,7 @@ public class PaymentServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var payments = new List<Payment>
         {
@@ -35,7 +35,7 @@ public class PaymentServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(bookings: bookings);
         var service = new PaymentService(ctx);
@@ -62,7 +62,7 @@ public class PaymentServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(bookings: bookings);
         var service = new PaymentService(ctx);
@@ -78,7 +78,7 @@ public class PaymentServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Completed }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Completed }
         };
         var ctx = MockDbContext.CreateWithData(bookings: bookings);
         var service = new PaymentService(ctx);
@@ -94,7 +94,7 @@ public class PaymentServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(bookings: bookings);
         var service = new PaymentService(ctx);
@@ -110,7 +110,7 @@ public class PaymentServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(bookings: bookings);
         var service = new PaymentService(ctx);

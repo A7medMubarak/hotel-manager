@@ -14,8 +14,25 @@ public class CreateBookingRequestValidatorTests
         var request = new CreateBookingRequest
         {
             RoomId = 1,
-            CheckIn = new DateOnly(2026, 7, 1),
-            CheckOut = new DateOnly(2026, 7, 4),
+            CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 7, 4, 12, 0, 0, DateTimeKind.Utc),
+            PricePerNight = 250,
+            PrimaryGuestId = 1
+        };
+
+        var result = _validator.Validate(request);
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Valid_SameDay_Passes()
+    {
+        var request = new CreateBookingRequest
+        {
+            RoomId = 1,
+            CheckIn = new DateTime(2026, 7, 1, 5, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 7, 1, 12, 0, 0, DateTimeKind.Utc),
             PricePerNight = 250,
             PrimaryGuestId = 1
         };
@@ -31,8 +48,8 @@ public class CreateBookingRequestValidatorTests
         var request = new CreateBookingRequest
         {
             RoomId = 0,
-            CheckIn = new DateOnly(2026, 7, 1),
-            CheckOut = new DateOnly(2026, 7, 4),
+            CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 7, 4, 12, 0, 0, DateTimeKind.Utc),
             PricePerNight = 250,
             PrimaryGuestId = 1
         };
@@ -48,8 +65,8 @@ public class CreateBookingRequestValidatorTests
         var request = new CreateBookingRequest
         {
             RoomId = 1,
-            CheckIn = new DateOnly(2026, 7, 4),
-            CheckOut = new DateOnly(2026, 7, 1),
+            CheckIn = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 7, 1, 12, 0, 0, DateTimeKind.Utc),
             PricePerNight = 250,
             PrimaryGuestId = 1
         };
@@ -65,8 +82,8 @@ public class CreateBookingRequestValidatorTests
         var request = new CreateBookingRequest
         {
             RoomId = 1,
-            CheckIn = new DateOnly(2026, 7, 1),
-            CheckOut = new DateOnly(2026, 7, 4),
+            CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 7, 4, 12, 0, 0, DateTimeKind.Utc),
             PricePerNight = 0,
             PrimaryGuestId = 1
         };

@@ -10,6 +10,7 @@ public interface IApplicationDbContext
     DbSet<Guest> Guests { get; }
     DbSet<Booking> Bookings { get; }
     DbSet<BookingGuest> BookingGuests { get; }
+    DbSet<BookingNight> BookingNights { get; }
     DbSet<Payment> Payments { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

@@ -12,6 +12,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Guest> Guests => Set<Guest>();
     public DbSet<Booking> Bookings => Set<Booking>();
     public DbSet<BookingGuest> BookingGuests => Set<BookingGuest>();
+    public DbSet<BookingNight> BookingNights => Set<BookingNight>();
     public DbSet<Payment> Payments => Set<Payment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

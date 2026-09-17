@@ -120,7 +120,7 @@ public class RoomServiceTests
     [Fact]
     public async Task ToggleMaintenanceAsync_ActiveBooking_Throws()
     {
-        var today = DateOnly.FromDateTime(DateTime.Today);
+        var today = DateTime.UtcNow.Date;
         var rooms = new List<Room>
         {
             new() { Id = 1, Number = "101", Floor = 1, BedCount = 2, BathroomType = BathroomType.Ensuite, BasePricePerNight = 250 }

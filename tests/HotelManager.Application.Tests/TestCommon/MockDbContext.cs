@@ -21,6 +21,7 @@ public static class MockDbContext
         List<Booking>? bookings = null,
         List<Payment>? payments = null,
         List<BookingGuest>? bookingGuests = null,
+        List<BookingNight>? bookingNights = null,
         List<User>? users = null)
     {
         var ctx = Create();
@@ -31,6 +32,7 @@ public static class MockDbContext
         if (bookings is not null) ctx.Bookings.AddRange(bookings);
         if (payments is not null) ctx.Payments.AddRange(payments);
         if (bookingGuests is not null) ctx.BookingGuests.AddRange(bookingGuests);
+        if (bookingNights is not null) ctx.BookingNights.AddRange(bookingNights);
 
         ctx.SaveChangesAsync().GetAwaiter().GetResult();
         return ctx;
@@ -45,6 +47,7 @@ public static class MockDbContext
         public DbSet<Guest> Guests => Set<Guest>();
         public DbSet<Booking> Bookings => Set<Booking>();
         public DbSet<BookingGuest> BookingGuests => Set<BookingGuest>();
+        public DbSet<BookingNight> BookingNights => Set<BookingNight>();
         public DbSet<Payment> Payments => Set<Payment>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

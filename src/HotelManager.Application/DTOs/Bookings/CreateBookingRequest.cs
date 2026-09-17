@@ -3,8 +3,8 @@ namespace HotelManager.Application.DTOs.Bookings;
 public class CreateBookingRequest
 {
     public int RoomId { get; set; }
-    public DateOnly CheckIn { get; set; }
-    public DateOnly CheckOut { get; set; }
+    public DateTime CheckIn { get; set; }
+    public DateTime CheckOut { get; set; }
     public decimal PricePerNight { get; set; }
     public string? Notes { get; set; }
 

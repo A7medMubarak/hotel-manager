@@ -18,7 +18,7 @@ public class RoomService : IRoomService
 
     public async Task<List<RoomDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        var today = DateOnly.FromDateTime(DateTime.Today);
+        var today = DateTime.UtcNow.Date;
 
         var rooms = await _context.Rooms
             .Select(r => new
@@ -36,7 +36,7 @@ public class RoomService : IRoomService
 
     public async Task<RoomDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var today = DateOnly.FromDateTime(DateTime.Today);
+        var today = DateTime.UtcNow.Date;
 
         var room = await _context.Rooms
             .Include(r => r.Bookings)
@@ -108,7 +108,7 @@ public class RoomService : IRoomService
         if (filter.Page < 1) filter.Page = 1;
         if (filter.PageSize < 1) filter.PageSize = 20;
 
-        var today = DateOnly.FromDateTime(DateTime.Today);
+        var today = DateTime.UtcNow.Date;
 
         var query = _context.Rooms
             .Select(r => new
@@ -161,7 +161,7 @@ public class RoomService : IRoomService
         if (room is null)
             throw new KeyNotFoundException($"Room with id {id} not found.");
 
-        var today = DateOnly.FromDateTime(DateTime.Today);
+        var today = DateTime.UtcNow.Date;
         var hasActiveBooking = await _context.Bookings
             .AnyAsync(b => b.RoomId == id && b.Status == BookingStatus.Active &&
                            b.CheckIn <= today && today < b.CheckOut, cancellationToken);

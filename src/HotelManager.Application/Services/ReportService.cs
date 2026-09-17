@@ -92,7 +92,7 @@ public class ReportService : IReportService
 
     public async Task<PeriodReportDto> GetWeeklyAsync(CancellationToken cancellationToken = default)
     {
-        var today = DateOnly.FromDateTime(DateTime.Today);
+        var today = DateTime.UtcNow.Date;
         var saturday = today.AddDays(-((int)today.DayOfWeek + 1) % 7);
         var friday = saturday.AddDays(6);
 
@@ -101,24 +101,26 @@ public class ReportService : IReportService
 
     public async Task<PeriodReportDto> GetMonthlyAsync(CancellationToken cancellationToken = default)
     {
-        var today = DateOnly.FromDateTime(DateTime.Today);
-        var firstDay = new DateOnly(today.Year, today.Month, 1);
+        var today = DateTime.UtcNow.Date;
+        var firstDay = new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var lastDay = firstDay.AddMonths(1).AddDays(-1);
 
         return await GetPeriodReport(firstDay, lastDay, "Monthly", cancellationToken);
     }
 
-    private async Task<PeriodReportDto> GetPeriodReport(DateOnly startDate, DateOnly endDate, string period, CancellationToken cancellationToken = default)
+    private async Task<PeriodReportDto> GetPeriodReport(DateTime startDate, DateTime endDate, string period, CancellationToken cancellationToken = default)
     {
+        var endExclusive = endDate.AddDays(1);
+
         var bookings = await _context.Bookings
-            .Where(b => b.CheckIn < endDate.AddDays(1) && b.CheckOut > startDate)
+            .Where(b => b.CheckIn < endExclusive && b.CheckOut > startDate)
             .Include(b => b.Payments)
             .ToListAsync(cancellationToken);
 
         var totalCollected = bookings
             .SelectMany(b => b.Payments)
-            .Where(p => DateOnly.FromDateTime(p.PaymentDate) >= startDate
-                     && DateOnly.FromDateTime(p.PaymentDate) <= endDate)
+            .Where(p => p.PaymentDate >= startDate
+                     && p.PaymentDate <= endDate)
             .Sum(p => p.Amount);
 
         var totalRevenue = bookings
