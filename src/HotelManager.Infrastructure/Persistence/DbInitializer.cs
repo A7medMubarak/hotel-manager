@@ -1,3 +1,4 @@
+using HotelManager.Application.Common;
 using HotelManager.Domain.Entities;
 using HotelManager.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -50,16 +51,18 @@ public static class DbInitializer
         {
             logger.LogInformation("Seeding demo data...");
 
-            var today = DateOnly.FromDateTime(DateTime.Today);
+            var today = DateTime.UtcNow.Date;
 
             var rooms = new List<Room>
             {
                 new() { Number = "101", Floor = 1, BedCount = 1, BathroomType = BathroomType.Ensuite, BasePricePerNight = 200 },
                 new() { Number = "102", Floor = 1, BedCount = 1, BathroomType = BathroomType.Shared, BasePricePerNight = 150 },
+                new() { Number = "103", Floor = 1, BedCount = 2, BathroomType = BathroomType.Ensuite, BasePricePerNight = 250 },
                 new() { Number = "201", Floor = 2, BedCount = 2, BathroomType = BathroomType.Ensuite, BasePricePerNight = 300 },
                 new() { Number = "202", Floor = 2, BedCount = 2, BathroomType = BathroomType.Ensuite, BasePricePerNight = 350 },
                 new() { Number = "301", Floor = 3, BedCount = 3, BathroomType = BathroomType.Ensuite, BasePricePerNight = 500 },
-                new() { Number = "302", Floor = 3, BedCount = 1, BathroomType = BathroomType.Shared, BasePricePerNight = 250, IsUnderMaintenance = true }
+                new() { Number = "302", Floor = 3, BedCount = 1, BathroomType = BathroomType.Shared, BasePricePerNight = 250, IsUnderMaintenance = true },
+                new() { Number = "104", Floor = 1, BedCount = 1, BathroomType = BathroomType.Ensuite, BasePricePerNight = 180 }
             };
 
             context.Rooms.AddRange(rooms);
@@ -82,8 +85,8 @@ public static class DbInitializer
                 new()
                 {
                     RoomId = rooms[0].Id,
-                    CheckIn = today.AddDays(-2),
-                    CheckOut = today.AddDays(3),
+                    CheckIn = today.AddDays(-2).AddHours(14),
+                    CheckOut = today.AddDays(3).AddHours(12),
                     PricePerNight = rooms[0].BasePricePerNight,
                     Status = BookingStatus.Active,
                     Notes = "طلب إفطار",
@@ -92,10 +95,10 @@ public static class DbInitializer
                 },
                 new()
                 {
-                    RoomId = rooms[2].Id,
-                    CheckIn = today,
-                    CheckOut = today.AddDays(5),
-                    PricePerNight = rooms[2].BasePricePerNight,
+                    RoomId = rooms[3].Id,
+                    CheckIn = today.AddHours(14),
+                    CheckOut = today.AddDays(5).AddHours(12),
+                    PricePerNight = rooms[3].BasePricePerNight,
                     Status = BookingStatus.Active,
                     Notes = "Quiet room requested",
                     CreatedAt = DateTime.UtcNow,
@@ -104,8 +107,19 @@ public static class DbInitializer
                 new()
                 {
                     RoomId = rooms[1].Id,
-                    CheckIn = today.AddDays(-10),
-                    CheckOut = today.AddDays(-7),
+                    CheckIn = today.AddHours(5),
+                    CheckOut = today.AddHours(12),
+                    PricePerNight = rooms[1].BasePricePerNight,
+                    Status = BookingStatus.Active,
+                    Notes = "Day-use",
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedByUserId = 1
+                },
+                new()
+                {
+                    RoomId = rooms[1].Id,
+                    CheckIn = today.AddDays(-10).AddHours(14),
+                    CheckOut = today.AddDays(-7).AddHours(12),
                     PricePerNight = rooms[1].BasePricePerNight,
                     Status = BookingStatus.Completed,
                     Notes = null,
@@ -114,10 +128,10 @@ public static class DbInitializer
                 },
                 new()
                 {
-                    RoomId = rooms[3].Id,
-                    CheckIn = today.AddDays(-14),
-                    CheckOut = today.AddDays(-10),
-                    PricePerNight = rooms[3].BasePricePerNight,
+                    RoomId = rooms[4].Id,
+                    CheckIn = today.AddDays(-14).AddHours(14),
+                    CheckOut = today.AddDays(-10).AddHours(12),
+                    PricePerNight = rooms[4].BasePricePerNight,
                     Status = BookingStatus.Completed,
                     Notes = "Late checkout requested",
                     CreatedAt = DateTime.UtcNow.AddDays(-14),
@@ -125,10 +139,10 @@ public static class DbInitializer
                 },
                 new()
                 {
-                    RoomId = rooms[4].Id,
-                    CheckIn = today.AddDays(5),
-                    CheckOut = today.AddDays(10),
-                    PricePerNight = rooms[4].BasePricePerNight,
+                    RoomId = rooms[5].Id,
+                    CheckIn = today.AddDays(5).AddHours(14),
+                    CheckOut = today.AddDays(10).AddHours(12),
+                    PricePerNight = rooms[5].BasePricePerNight,
                     Status = BookingStatus.Cancelled,
                     Notes = null,
                     CreatedAt = DateTime.UtcNow,
@@ -136,12 +150,34 @@ public static class DbInitializer
                 },
                 new()
                 {
-                    RoomId = rooms[4].Id,
-                    CheckIn = today.AddDays(1),
-                    CheckOut = today.AddDays(4),
-                    PricePerNight = rooms[4].BasePricePerNight,
+                    RoomId = rooms[5].Id,
+                    CheckIn = today.AddDays(1).AddHours(14),
+                    CheckOut = today.AddDays(4).AddHours(12),
+                    PricePerNight = rooms[5].BasePricePerNight,
                     Status = BookingStatus.Active,
                     Notes = "Honeymoon suite",
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedByUserId = 1
+                },
+                new()
+                {
+                    RoomId = rooms[7].Id,
+                    CheckIn = today.AddDays(-5).AddHours(14),
+                    CheckOut = today.AddDays(-2).AddHours(12),
+                    PricePerNight = rooms[7].BasePricePerNight,
+                    Status = BookingStatus.Active,
+                    Notes = null,
+                    CreatedAt = DateTime.UtcNow.AddDays(-5),
+                    CreatedByUserId = 1
+                },
+                new()
+                {
+                    RoomId = rooms[0].Id,
+                    CheckIn = today.AddDays(3).AddHours(14),
+                    CheckOut = today.AddDays(6).AddHours(12),
+                    PricePerNight = rooms[0].BasePricePerNight,
+                    Status = BookingStatus.Active,
+                    Notes = "Adjacent to booking 1",
                     CreatedAt = DateTime.UtcNow,
                     CreatedByUserId = 1
                 }
@@ -150,15 +186,26 @@ public static class DbInitializer
             context.Bookings.AddRange(bookings);
             await context.SaveChangesAsync();
 
+            foreach (var booking in bookings.Where(b => b.Status != BookingStatus.Cancelled))
+            {
+                var nights = BusinessDateHelper.GetNightDates(booking.CheckIn, booking.CheckOut);
+                foreach (var date in nights)
+                    context.BookingNights.Add(new BookingNight { BookingId = booking.Id, RoomId = booking.RoomId, Date = date });
+            }
+            await context.SaveChangesAsync();
+
             var bookingGuests = new List<BookingGuest>
             {
                 new() { BookingId = bookings[0].Id, GuestId = guests[0].Id, IsPrimary = true },
                 new() { BookingId = bookings[1].Id, GuestId = guests[1].Id, IsPrimary = true },
                 new() { BookingId = bookings[2].Id, GuestId = guests[2].Id, IsPrimary = true },
-                new() { BookingId = bookings[3].Id, GuestId = guests[3].Id, IsPrimary = true },
-                new() { BookingId = bookings[4].Id, GuestId = guests[4].Id, IsPrimary = true },
-                new() { BookingId = bookings[5].Id, GuestId = guests[1].Id, IsPrimary = true },
-                new() { BookingId = bookings[5].Id, GuestId = guests[4].Id, IsPrimary = false }
+                new() { BookingId = bookings[3].Id, GuestId = guests[2].Id, IsPrimary = true },
+                new() { BookingId = bookings[4].Id, GuestId = guests[3].Id, IsPrimary = true },
+                new() { BookingId = bookings[5].Id, GuestId = guests[4].Id, IsPrimary = true },
+                new() { BookingId = bookings[6].Id, GuestId = guests[1].Id, IsPrimary = true },
+                new() { BookingId = bookings[6].Id, GuestId = guests[4].Id, IsPrimary = false },
+                new() { BookingId = bookings[7].Id, GuestId = guests[0].Id, IsPrimary = true },
+                new() { BookingId = bookings[8].Id, GuestId = guests[3].Id, IsPrimary = true }
             };
 
             context.BookingGuests.AddRange(bookingGuests);
@@ -168,8 +215,10 @@ public static class DbInitializer
             {
                 new() { BookingId = bookings[0].Id, Amount = 300, PaymentDate = DateTime.UtcNow.AddDays(-2), Notes = "دفعة مقدمة", CreatedAt = DateTime.UtcNow.AddDays(-2), CreatedByUserId = 1 },
                 new() { BookingId = bookings[1].Id, Amount = 1500, PaymentDate = DateTime.UtcNow, Notes = "Full payment", CreatedAt = DateTime.UtcNow, CreatedByUserId = 1 },
-                new() { BookingId = bookings[2].Id, Amount = 450, PaymentDate = DateTime.UtcNow.AddDays(-10), Notes = "Full payment", CreatedAt = DateTime.UtcNow.AddDays(-10), CreatedByUserId = 1 },
-                new() { BookingId = bookings[3].Id, Amount = 700, PaymentDate = DateTime.UtcNow.AddDays(-14), Notes = "Partial payment", CreatedAt = DateTime.UtcNow.AddDays(-14), CreatedByUserId = 1 }
+                new() { BookingId = bookings[3].Id, Amount = 450, PaymentDate = DateTime.UtcNow.AddDays(-10), Notes = "Full payment", CreatedAt = DateTime.UtcNow.AddDays(-10), CreatedByUserId = 1 },
+                new() { BookingId = bookings[4].Id, Amount = 700, PaymentDate = DateTime.UtcNow.AddDays(-14), Notes = "Partial payment", CreatedAt = DateTime.UtcNow.AddDays(-14), CreatedByUserId = 1 },
+                new() { BookingId = bookings[7].Id, Amount = 540, PaymentDate = DateTime.UtcNow.AddDays(-5), Notes = "Full payment", CreatedAt = DateTime.UtcNow.AddDays(-5), CreatedByUserId = 1 },
+                new() { BookingId = bookings[8].Id, Amount = 600, PaymentDate = DateTime.UtcNow, Notes = "Full payment", CreatedAt = DateTime.UtcNow, CreatedByUserId = 1 }
             };
 
             context.Payments.AddRange(payments);

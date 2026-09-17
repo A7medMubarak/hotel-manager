@@ -3,6 +3,7 @@ using HotelManager.Application.Services;
 using HotelManager.Application.Tests.TestCommon;
 using HotelManager.Domain.Entities;
 using HotelManager.Domain.Enums;
+using HotelManager.Domain.Exceptions;
 using FluentAssertions;
 
 namespace HotelManager.Application.Tests.Services;
@@ -25,8 +26,8 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 6, 15), CheckOut = new DateOnly(2026, 6, 18), PricePerNight = 250, Status = BookingStatus.Active },
-            new() { Id = 2, RoomId = 1, CheckIn = new DateOnly(2026, 6, 20), CheckOut = new DateOnly(2026, 6, 22), PricePerNight = 250, Status = BookingStatus.Completed }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 6, 15, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 6, 18, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active },
+            new() { Id = 2, RoomId = 1, CheckIn = new DateTime(2026, 6, 20, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 6, 22, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Completed }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests, bookings: bookings,
             bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
@@ -50,8 +51,8 @@ public class BookingServiceTests
         var result = await service.CreateAsync(new CreateBookingRequest
         {
             RoomId = 1,
-            CheckIn = new DateOnly(2026, 7, 1),
-            CheckOut = new DateOnly(2026, 7, 4),
+            CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc),
             PricePerNight = 250,
             PrimaryGuestId = 1,
             AdditionalGuestIds = [2],
@@ -69,7 +70,7 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 5), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 5, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests, bookings: bookings,
             bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
@@ -80,13 +81,13 @@ public class BookingServiceTests
         var act = () => service.CreateAsync(new CreateBookingRequest
         {
             RoomId = 1,
-            CheckIn = new DateOnly(2026, 7, 3),
-            CheckOut = new DateOnly(2026, 7, 6),
+            CheckIn = new DateTime(2026, 7, 3, 14, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 7, 6, 14, 0, 0, DateTimeKind.Utc),
             PricePerNight = 250,
             PrimaryGuestId = 1
         }, createdByUserId: 1);
 
-        await act.Should().ThrowAsync<ArgumentException>()
+        await act.Should().ThrowAsync<RoomNotAvailableException>()
             .WithMessage("Room is not available for the selected dates.");
     }
 
@@ -95,7 +96,7 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 5), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 5, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests, bookings: bookings,
             bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
@@ -106,8 +107,8 @@ public class BookingServiceTests
         var result = await service.CreateAsync(new CreateBookingRequest
         {
             RoomId = 1,
-            CheckIn = new DateOnly(2026, 7, 5),
-            CheckOut = new DateOnly(2026, 7, 8),
+            CheckIn = new DateTime(2026, 7, 5, 14, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 7, 8, 14, 0, 0, DateTimeKind.Utc),
             PricePerNight = 250,
             PrimaryGuestId = 1
         }, createdByUserId: 1);
@@ -130,8 +131,8 @@ public class BookingServiceTests
         var act = () => service.CreateAsync(new CreateBookingRequest
         {
             RoomId = 1,
-            CheckIn = new DateOnly(2026, 8, 1),
-            CheckOut = new DateOnly(2026, 8, 4),
+            CheckIn = new DateTime(2026, 8, 1, 14, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 8, 4, 14, 0, 0, DateTimeKind.Utc),
             PricePerNight = 250,
             PrimaryGuestId = 1
         }, createdByUserId: 1);
@@ -155,8 +156,8 @@ public class BookingServiceTests
         var result = await service.CreateAsync(new CreateBookingRequest
         {
             RoomId = 1,
-            CheckIn = new DateOnly(2026, 8, 1),
-            CheckOut = new DateOnly(2026, 8, 4),
+            CheckIn = new DateTime(2026, 8, 1, 14, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 8, 4, 14, 0, 0, DateTimeKind.Utc),
             PricePerNight = 250,
             PrimaryGuestId = 1
         }, createdByUserId: 1);
@@ -170,7 +171,7 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings);
         var bookingQueryService = new BookingQueryService(ctx);
@@ -188,7 +189,7 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var payments = new List<Payment>
         {
@@ -210,7 +211,7 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings,
             bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
@@ -218,10 +219,10 @@ public class BookingServiceTests
         var bookingAvailabilityService = new BookingAvailabilityService(ctx);
         var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
-        await service.ExtendAsync(1, new ExtendBookingRequest { NewCheckOut = new DateOnly(2026, 7, 6) });
+        await service.ExtendAsync(1, new ExtendBookingRequest { NewCheckOut = new DateTime(2026, 7, 6, 14, 0, 0, DateTimeKind.Utc) });
 
         var updated = await ctx.Bookings.FindAsync(1);
-        updated!.CheckOut.Should().Be(new DateOnly(2026, 7, 6));
+        updated!.CheckOut.Should().Be(new DateTime(2026, 7, 6, 14, 0, 0, DateTimeKind.Utc));
     }
 
     [Fact]
@@ -229,7 +230,7 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Completed }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Completed }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings,
             bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
@@ -237,7 +238,7 @@ public class BookingServiceTests
         var bookingAvailabilityService = new BookingAvailabilityService(ctx);
         var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
 
-        var act = () => service.ExtendAsync(1, new ExtendBookingRequest { NewCheckOut = new DateOnly(2026, 7, 6) });
+        var act = () => service.ExtendAsync(1, new ExtendBookingRequest { NewCheckOut = new DateTime(2026, 7, 6, 14, 0, 0, DateTimeKind.Utc) });
 
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("Only active bookings can be extended.");
@@ -248,7 +249,7 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var payments = new List<Payment>
         {
@@ -270,7 +271,7 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Cancelled }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Cancelled }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings);
         var bookingQueryService = new BookingQueryService(ctx);
@@ -288,7 +289,7 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings);
         var bookingQueryService = new BookingQueryService(ctx);
@@ -306,7 +307,7 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Completed }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Completed }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings);
         var bookingQueryService = new BookingQueryService(ctx);
@@ -324,7 +325,7 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests, bookings: bookings,
             bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
@@ -342,7 +343,7 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings);
         var bookingQueryService = new BookingQueryService(ctx);
@@ -359,7 +360,7 @@ public class BookingServiceTests
     {
         var bookings = new List<Booking>
         {
-            new() { Id = 1, RoomId = 1, CheckIn = new DateOnly(2026, 7, 1), CheckOut = new DateOnly(2026, 7, 4), PricePerNight = 250, Status = BookingStatus.Active }
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 14, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
         };
         var payments = new List<Payment>
         {
@@ -376,5 +377,136 @@ public class BookingServiceTests
         result.TotalCost.Should().Be(750);
         result.TotalPaid.Should().Be(500);
         result.Balance.Should().Be(250);
+    }
+
+    [Fact]
+    public async Task CreateAsync_SameDay_CreatesBookingWithOneNight()
+    {
+        var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
+
+        var result = await service.CreateAsync(new CreateBookingRequest
+        {
+            RoomId = 1,
+            CheckIn = new DateTime(2026, 7, 1, 5, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 7, 1, 12, 0, 0, DateTimeKind.Utc),
+            PricePerNight = 250,
+            PrimaryGuestId = 1
+        }, createdByUserId: 1);
+
+        result.Should().NotBeNull();
+        result.Nights.Should().Be(1);
+        result.TotalCost.Should().Be(250);
+        var nights = await ctx.BookingNights.Where(bn => bn.BookingId == result.Id).ToListAsync();
+        nights.Should().ContainSingle(n => n.Date == new DateOnly(2026, 7, 1));
+    }
+
+    [Fact]
+    public async Task CreateAsync_SameDayBlocksOverlappingSameDay_Throws()
+    {
+        var bookings = new List<Booking>
+        {
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 5, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 1, 12, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
+        };
+        var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests, bookings: bookings,
+            bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
+
+        var act = () => service.CreateAsync(new CreateBookingRequest
+        {
+            RoomId = 1,
+            CheckIn = new DateTime(2026, 7, 1, 8, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 7, 1, 15, 0, 0, DateTimeKind.Utc),
+            PricePerNight = 250,
+            PrimaryGuestId = 1
+        }, createdByUserId: 1);
+
+        await act.Should().ThrowAsync<RoomNotAvailableException>()
+            .WithMessage("Room is not available for the selected dates.");
+    }
+
+    [Fact]
+    public async Task CreateAsync_CreatesBookingNights()
+    {
+        var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
+
+        var result = await service.CreateAsync(new CreateBookingRequest
+        {
+            RoomId = 1,
+            CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 7, 4, 12, 0, 0, DateTimeKind.Utc),
+            PricePerNight = 250,
+            PrimaryGuestId = 1
+        }, createdByUserId: 1);
+
+        var nights = await ctx.BookingNights.Where(bn => bn.BookingId == result.Id).ToListAsync();
+        nights.Should().HaveCount(3);
+        nights.Select(n => n.Date).Should().ContainInOrder(new DateOnly(2026, 7, 1), new DateOnly(2026, 7, 2), new DateOnly(2026, 7, 3));
+    }
+
+    [Fact]
+    public async Task CancelAsync_DeletesBookingNights()
+    {
+        var bookings = new List<Booking>
+        {
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 12, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
+        };
+        var bookingNights = new List<BookingNight>
+        {
+            new() { Id = 1, BookingId = 1, RoomId = 1, Date = new DateOnly(2026, 7, 1) },
+            new() { Id = 2, BookingId = 1, RoomId = 1, Date = new DateOnly(2026, 7, 2) },
+            new() { Id = 3, BookingId = 1, RoomId = 1, Date = new DateOnly(2026, 7, 3) }
+        };
+        var ctx = MockDbContext.CreateWithData(rooms: _rooms, guests: _guests, bookings: bookings, bookingNights: bookingNights);
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
+
+        await service.CancelAsync(1);
+
+        var remaining = await ctx.BookingNights.Where(bn => bn.BookingId == 1).ToListAsync();
+        remaining.Should().BeEmpty();
+        var rebook = await service.CreateAsync(new CreateBookingRequest
+        {
+            RoomId = 1,
+            CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc),
+            CheckOut = new DateTime(2026, 7, 4, 12, 0, 0, DateTimeKind.Utc),
+            PricePerNight = 250,
+            PrimaryGuestId = 1
+        }, createdByUserId: 1);
+        rebook.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task ExtendAsync_AddsNewNightRows()
+    {
+        var bookings = new List<Booking>
+        {
+            new() { Id = 1, RoomId = 1, CheckIn = new DateTime(2026, 7, 1, 14, 0, 0, DateTimeKind.Utc), CheckOut = new DateTime(2026, 7, 4, 12, 0, 0, DateTimeKind.Utc), PricePerNight = 250, Status = BookingStatus.Active }
+        };
+        var bookingNights = new List<BookingNight>
+        {
+            new() { Id = 1, BookingId = 1, RoomId = 1, Date = new DateOnly(2026, 7, 1) },
+            new() { Id = 2, BookingId = 1, RoomId = 1, Date = new DateOnly(2026, 7, 2) },
+            new() { Id = 3, BookingId = 1, RoomId = 1, Date = new DateOnly(2026, 7, 3) }
+        };
+        var ctx = MockDbContext.CreateWithData(rooms: _rooms, bookings: bookings, bookingNights: bookingNights,
+            bookingGuests: new List<BookingGuest> { new() { BookingId = 1, GuestId = 1, IsPrimary = true } });
+        var bookingQueryService = new BookingQueryService(ctx);
+        var bookingAvailabilityService = new BookingAvailabilityService(ctx);
+        var service = new BookingService(ctx, bookingQueryService, bookingAvailabilityService);
+
+        await service.ExtendAsync(1, new ExtendBookingRequest { NewCheckOut = new DateTime(2026, 7, 6, 12, 0, 0, DateTimeKind.Utc) });
+
+        var nights = await ctx.BookingNights.Where(bn => bn.BookingId == 1).OrderBy(bn => bn.Date).ToListAsync();
+        nights.Should().HaveCount(5);
+        nights.Last().Date.Should().Be(new DateOnly(2026, 7, 5));
     }
 }

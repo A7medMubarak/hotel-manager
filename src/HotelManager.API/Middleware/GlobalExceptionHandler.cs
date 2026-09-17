@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using HotelManager.Domain.Exceptions;
 
 namespace HotelManager.API.Middleware;
 
@@ -75,6 +76,21 @@ public class GlobalExceptionHandler
                 type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                 title = "Bad Request",
                 status = 400,
+                detail = ex.Message
+            };
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
+        }
+        catch (RoomNotAvailableException ex)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.Conflict;
+            context.Response.ContentType = "application/problem+json";
+
+            var problem = new
+            {
+                type = "https://tools.ietf.org/html/rfc7231#section-6.5.8",
+                title = "Conflict",
+                status = 409,
                 detail = ex.Message
             };
 

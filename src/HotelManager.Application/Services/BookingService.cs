@@ -4,7 +4,9 @@ using HotelManager.Application.DTOs.Common;
 using HotelManager.Application.Services.Interfaces;
 using HotelManager.Domain.Entities;
 using HotelManager.Domain.Enums;
+using HotelManager.Domain.Exceptions;
 using HotelManager.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelManager.Application.Services;
 
@@ -67,7 +69,7 @@ public class BookingService : IBookingService
 
         var available = await _availabilityService.IsRoomAvailable(request.RoomId, request.CheckIn, request.CheckOut, cancellationToken: cancellationToken);
         if (!available)
-            throw new ArgumentException("Room is not available for the selected dates.");
+            throw new RoomNotAvailableException("Room is not available for the selected dates.");
 
         var booking = new Booking
         {
@@ -96,15 +98,29 @@ public class BookingService : IBookingService
             });
         }
 
+        var nightDates = BusinessDateHelper.GetNightDates(booking.CheckIn, booking.CheckOut);
+        foreach (var date in nightDates)
+            booking.BookingNights.Add(new BookingNight { RoomId = booking.RoomId, Date = date });
+
         _context.Bookings.Add(booking);
-        await _context.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+        {
+            throw new RoomNotAvailableException("Room is not available for the selected dates.");
+        }
 
         return await _queryService.GetByIdAsync(booking.Id, cancellationToken);
     }
 
     public async Task ExtendAsync(int id, ExtendBookingRequest request, CancellationToken cancellationToken = default)
     {
-        var booking = await _context.Bookings.FindAsync(new object[] { id }, cancellationToken);
+        var booking = await _context.Bookings
+            .Include(b => b.BookingNights)
+            .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
 
         if (booking is null)
             throw new KeyNotFoundException($"Booking with id {id} not found.");
@@ -120,10 +136,24 @@ public class BookingService : IBookingService
 
         var available = await _availabilityService.IsRoomAvailable(booking.RoomId, booking.CheckIn, request.NewCheckOut, id, cancellationToken);
         if (!available)
-            throw new ArgumentException("Room is not available for the extended period.");
+            throw new RoomNotAvailableException("Room is not available for the extended period.");
 
+        var oldCheckOut = booking.CheckOut;
         booking.CheckOut = request.NewCheckOut;
-        await _context.SaveChangesAsync(cancellationToken);
+
+        var newNightDates = BusinessDateHelper.GetNightDates(oldCheckOut, request.NewCheckOut);
+        var existingDates = booking.BookingNights.Select(bn => bn.Date).ToHashSet();
+        foreach (var date in newNightDates.Where(d => !existingDates.Contains(d)))
+            _context.BookingNights.Add(new BookingNight { BookingId = booking.Id, RoomId = booking.RoomId, Date = date });
+
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+        {
+            throw new RoomNotAvailableException("Room is not available for the extended period.");
+        }
     }
 
     public async Task CompleteAsync(int id, CancellationToken cancellationToken = default)
@@ -158,6 +188,16 @@ public class BookingService : IBookingService
             throw new ArgumentException("Only active bookings can be cancelled.");
 
         booking.Status = BookingStatus.Cancelled;
+        var nights = _context.BookingNights.Where(bn => bn.BookingId == id);
+        _context.BookingNights.RemoveRange(nights);
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    private static bool IsUniqueConstraintViolation(DbUpdateException ex)
+    {
+        var msg = ex.InnerException?.Message ?? ex.Message;
+        return msg.Contains("UNIQUE", StringComparison.OrdinalIgnoreCase)
+            || msg.Contains("duplicate", StringComparison.OrdinalIgnoreCase)
+            || msg.Contains("unique", StringComparison.OrdinalIgnoreCase);
     }
 }
