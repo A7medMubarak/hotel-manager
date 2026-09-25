@@ -29,18 +29,28 @@ builder.Services.AddSwaggerWithJwt();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddApplicationServices(builder.Configuration);
 
-var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:5174";
+var configuredOrigins = (builder.Configuration["FrontendUrls"] ?? builder.Configuration["FrontendUrl"] ?? "http://localhost:5174")
+    .Split([',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(frontendUrl)
+        policy.WithOrigins(configuredOrigins)
               .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE")
               .WithHeaders("Content-Type", "Authorization")
+              .SetIsOriginAllowed(origin =>
+                  configuredOrigins.Contains(origin) || IsVercelPreview(origin))
               .AllowCredentials();
     });
 });
+
+static bool IsVercelPreview(string origin)
+{
+    if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri)) return false;
+    return uri.Scheme == Uri.UriSchemeHttps
+        && uri.Host.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase);
+}
 
 var app = builder.Build();
 

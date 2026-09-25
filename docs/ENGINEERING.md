@@ -144,6 +144,7 @@ Being upfront about the gap between "portfolio-complete" and "commercial-product
 - **Refresh tokens**, so sessions can outlive a single 8-hour window without a flat re-login.
 - **HTTP-only secure cookies** instead of `localStorage` for the JWT, to reduce XSS exposure. `localStorage` is fine for a portfolio project talking to its own API; it's not what I'd choose for a system handling real guest data.
 - **Automated tests running in CI**, not just locally.
+- CORS allows `https://*.vercel.app` previews in addition to the configured production origin. Deliberate for a portfolio demo (Bearer-token auth attaches nothing automatically, so a stranger's preview gains nothing) — a system handling real guest data would use a strict explicit allowlist instead.
 - Health check endpoints, centralized monitoring/logging, and a backup/disaster-recovery story — none of which matter for a demo, all of which matter the first time something breaks in production.
 
 None of this was an oversight — it's scope. A single-hotel demo doesn't need Kubernetes. But knowing the difference between "works for this project" and "ready for a real one" is the actual point of listing it.

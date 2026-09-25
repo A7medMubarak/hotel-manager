@@ -421,7 +421,8 @@ Location: `src/HotelManager.API/appsettings.Development.json`
 | `Jwt__Issuer` | ❌ No (optional override) | Override `appsettings.json` |
 | `Jwt__Audience` | ❌ No (optional override) | Override `appsettings.json` |
 | `Jwt__ExpiryHours` | ❌ No (optional override) | Override `appsettings.json` |
-| `FrontendUrl` | ❌ No (optional override) | Override `appsettings.json` |
+| `FrontendUrl` | ❌ No (optional override) | Single allowed CORS origin (legacy; `FrontendUrls` takes precedence) |
+| `FrontendUrls` | ❌ No (optional override) | Comma/semicolon-separated allowed CORS origins. `https://*.vercel.app` previews are always allowed alongside these |
 | `DefaultAdminPassword` | ❌ No (default: `Admin123!`) | First-run admin seed password |
 
 > **Important**: ASP.NET Core uses `__` (double underscore) as the key separator in environment variables (e.g., `ConnectionStrings__DefaultConnection`). This works on all platforms.
