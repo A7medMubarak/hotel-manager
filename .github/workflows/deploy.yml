@@ -1,9 +1,32 @@
 name: Deploy to MonsterASP.net
 
-on: push
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0
+
+      - name: Build
+        run: dotnet build ./HotelManager.sln --configuration Release
+
+      - name: Test
+        run: dotnet test ./HotelManager.sln --no-build --configuration Release
+
   deploy:
+    # PRs run build+tests only — deploy happens on pushes to main.
+    needs: build-and-test
+    if: github.event_name == 'push'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
