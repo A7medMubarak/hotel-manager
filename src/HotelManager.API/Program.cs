@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using HotelManager.API.Extensions;
 using HotelManager.API.Middleware;
@@ -13,6 +14,9 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
+
+// Liveness probe for host monitoring / deploy verification.
+builder.Services.AddHealthChecks();
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -54,6 +58,13 @@ static bool IsVercelPreview(string origin)
 
 var app = builder.Build();
 
+// Must run first: restores real client IP/scheme when behind the host's
+// reverse proxy (rate limiting and HTTPS redirects depend on it).
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 app.UseMiddleware<GlobalExceptionHandler>();
 
 app.UseCors("AllowFrontend");
@@ -83,6 +94,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 await DbInitializer.SeedAsync(app.Services);
 
