@@ -12,10 +12,12 @@ public static class AuthExtensions
         var signingKey = configuration["Jwt:Key"];
 
         // Fail fast on missing/weak keys instead of crashing cryptically
-        // (null) or signing weak tokens (short key). In production provide
-        // the key via the Jwt__Key environment variable.
-        if (string.IsNullOrWhiteSpace(signingKey) || Encoding.UTF8.GetByteCount(signingKey) < 32)
-            throw new InvalidOperationException("Jwt:Key must be at least 256-bit (32+ characters).");
+        // (null) or signing weak tokens (short key). The committed fallback
+        // is public, so it is rejected even though it passes the length check.
+        // In production provide the key via the Jwt__Key environment variable.
+        if (string.IsNullOrWhiteSpace(signingKey) || Encoding.UTF8.GetByteCount(signingKey) < 32
+            || signingKey == "PaintShopDefaultSecretKey_ChangeInProduction!")
+            throw new InvalidOperationException("Jwt:Key must be set to a private 256-bit (32+ characters) key.");
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
