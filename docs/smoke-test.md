@@ -1,10 +1,10 @@
 # Production Smoke Test
 
 Run after every deploy. No frontend needed — PowerShell only.
-Replace `https://api.yourdomain.com` with your production URL.
+Production URL is pre-filled below.
 
 ```powershell
-$base = "https://api.yourdomain.com"
+$base = "https://hotel-manager.runasp.net"
 
 # 1. Liveness — expect "Healthy" (HTTP 200)
 Invoke-RestMethod "$base/health"
