@@ -12,8 +12,8 @@ public static class AuthExtensions
         var signingKey = configuration["Jwt:Key"];
 
         // Fail fast on missing/weak keys instead of crashing cryptically
-        // (null) or signing weak tokens (short key). The committed fallback
-        // is public, so it is rejected even though it passes the length check.
+        // (null) or signing weak tokens (short key). The well-known default
+        // is rejected even though it passes the length check.
         // In production provide the key via the Jwt__Key environment variable.
         if (string.IsNullOrWhiteSpace(signingKey) || Encoding.UTF8.GetByteCount(signingKey) < 32
             || signingKey == "PaintShopDefaultSecretKey_ChangeInProduction!")
